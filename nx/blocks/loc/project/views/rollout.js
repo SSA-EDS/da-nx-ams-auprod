@@ -1,6 +1,6 @@
 import { LitElement, html, nothing } from '../../../../deps/lit/dist/index.js';
 import { getConfig } from '../../../../scripts/nexter.js';
-import getSvg from '../../../../utils/svg.js';
+import { getSvg } from '../../../../utils/svg.js';
 import getStyle from '../../../../utils/styles.js';
 import {
   calculateTime,
@@ -73,6 +73,7 @@ class NxLocRollout extends LitElement {
 
             this.requestUpdate();
           } else {
+            // eslint-disable-next-line no-console
             console.log('there was an error');
             lang.errors.push({ source, destination });
           }

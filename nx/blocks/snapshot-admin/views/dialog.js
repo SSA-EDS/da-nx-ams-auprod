@@ -1,7 +1,6 @@
-// eslint-disable-next-line import/no-unresolved
-import { html, LitElement } from 'da-lit';
+import { html, LitElement, nothing } from 'da-lit';
 import getStyle from '../../../utils/styles.js';
-import getSvg from '../../../utils/svg.js';
+import { getSvg } from '../../../utils/svg.js';
 
 const nx = `${new URL(import.meta.url).origin}/nx`;
 const sl = await getStyle(`${nx}/public/sl/styles.css`);
@@ -28,8 +27,8 @@ class NxDialog extends LitElement {
     }
   }
 
-  handleAction() {
-    const opts = { bubbles: true, composed: true };
+  handleAction(value) {
+    const opts = { bubbles: true, composed: true, detail: value };
     const event = new CustomEvent('action', opts);
     this.dispatchEvent(event);
     this._dialog.close();
@@ -39,15 +38,29 @@ class NxDialog extends LitElement {
     return this.shadowRoot.querySelector('sl-dialog');
   }
 
+  renderActions() {
+    if (this.details?.actions) {
+      return this.details.actions.map((action) => html`
+        <sl-button
+          class="${action.variant || 'default'}"
+          @click=${() => this.handleAction(action.value)}
+        >
+          ${action.label}
+        </sl-button>
+      `);
+    }
+    return html`<sl-button @click=${() => this.handleAction()}>OK</sl-button>`;
+  }
+
   render() {
     return html`
       <sl-dialog class="nx-snapshots-error">
-        <div class="nx-dialog">
+        <div class="nx-dialog" style=${this.details?.width ? `width:${this.details.width}` : nothing}>
           <div class="nx-dialog-header-area">
             <p class="sl-heading-l">${this.details?.heading}</p>
             <button
               class="nx-dialog-close-btn"
-              @click=${this.handleAction}
+              @click=${() => this.handleAction()}
               aria-label="Close dialog">
               <svg class="icon"><use href="#S2IconClose20N-icon"/></svg>
             </button>
@@ -57,7 +70,7 @@ class NxDialog extends LitElement {
             <p class="sl-body-s">${this.details?.message}</p>
           </div>
           <div class="nx-dialog-action-group">
-            <sl-button @click=${this.handleAction}>OK</sl-button>
+            ${this.renderActions()}
           </div>
         </div>
       </sl-dialog>

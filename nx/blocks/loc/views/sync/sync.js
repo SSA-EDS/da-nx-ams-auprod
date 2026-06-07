@@ -1,7 +1,7 @@
 import { LitElement, html, nothing } from 'da-lit';
 import getStyle from '../../../../utils/styles.js';
 import { getConfig } from '../../../../scripts/nexter.js';
-import getSvg from '../../../../utils/svg.js';
+import { getSvg } from '../../../../utils/svg.js';
 import { Queue } from '../../../../public/utils/tree.js';
 import { getSyncUrls } from './index.js';
 import { mergeCopy, overwriteCopy } from '../../project/index.js';
@@ -54,7 +54,7 @@ class NxLocSync extends LitElement {
 
   handleAction(e) {
     const { view, hash, href } = e.detail;
-    const detail = hash || href ? { hash, href } : { data: { view } }
+    const detail = hash || href ? { hash, href } : { data: { view } };
     const opts = { detail, bubbles: true, composed: true };
     const event = new CustomEvent('action', opts);
     this.dispatchEvent(event);

@@ -1,7 +1,7 @@
 import { LitElement, html, nothing } from 'da-lit';
 import getStyle from '../../../../utils/styles.js';
 import { getConfig } from '../../../../scripts/nexter.js';
-import getSvg from '../../../../utils/svg.js';
+import { getSvg } from '../../../../utils/svg.js';
 import {
   setupConnector,
   getUrls,
@@ -51,7 +51,12 @@ class NxLocTranslate extends LitElement {
 
   async setupService() {
     const connector = await setupConnector(this.project.options.service);
-    this._service = { ...this.project.options.service, connector };
+    this._service = {
+      ...this.project.options.service,
+      connector,
+      org: this.project.org,
+      site: this.project.site,
+    };
     this._connected = await this._service.connector.isConnected(this._service);
   }
 
@@ -95,14 +100,33 @@ class NxLocTranslate extends LitElement {
     const defSrcLocation = this._options['source.language']?.location || '/';
 
     // Get the default source once for all langs that use the default location
-    // TODO: In some rare cases (regional sites), it could be unneccessary to always get the default URLs.
-    const { urls } = await getUrls(org, site, service, defSrcLocation, defSrcLocation, this._urls, fetchContent, snapshot);
+    // TODO: In some rare cases (regional sites), it could be unneccessary
+    // to always get the default URLs.
+    const { urls } = await getUrls(
+      org,
+      site,
+      service,
+      defSrcLocation,
+      defSrcLocation,
+      this._urls,
+      fetchContent,
+      snapshot,
+    );
 
     // Check langs for custom source locations
     const langsWithUrls = await Promise.all(langs.map(async (lang) => {
       const langUrl = { ...lang };
       if (lang.source) {
-        const customSources = await getUrls(org, site, service, defSrcLocation, lang.source, this._urls, fetchContent, snapshot);
+        const customSources = await getUrls(
+          org,
+          site,
+          service,
+          defSrcLocation,
+          lang.source,
+          this._urls,
+          fetchContent,
+          snapshot,
+        );
         langUrl.urls = customSources.urls;
       } else {
         langUrl.urls = urls;
@@ -141,13 +165,19 @@ class NxLocTranslate extends LitElement {
   }
 
   async handleSendAll() {
-    const conf = await this.getBaseTranslationConf(true);
-    const sendAll = await sendAllForTranslation(conf, this._service.connector);
-    if (sendAll?.errors?.length) {
-      this._urlErrors = sendAll.errors;
+    if (this._sendAllBusy) return;
+    this._sendAllBusy = true;
+    try {
+      const conf = await this.getBaseTranslationConf(true);
+      const sendAll = await sendAllForTranslation(conf, this._service.connector);
+      if (sendAll?.errors?.length) {
+        this._urlErrors = sendAll.errors;
+      }
+      // See if anything is finished immediately
+      this.checkAndSaveLangs(conf);
+    } finally {
+      this._sendAllBusy = false;
     }
-    // See if anything is finished immediately
-    this.checkAndSaveLangs(conf);
   }
 
   async checkAndSaveLangs(conf) {
@@ -207,17 +237,26 @@ class NxLocTranslate extends LitElement {
   }
 
   async handleCopyAll() {
-    const { urls } = await this.fetchUrls({}, true);
+    const { _copyLangs: langs } = this;
 
-    const errors = urls.filter((url) => url.error);
-    if (errors.length) {
-      this._urlErrors = errors;
-      return;
-    }
+    // langsWithUrls is an in-memory object that contains all URL fetches.
+    const { langsWithUrls, urls } = await this.fetchUrls({}, true, langs);
+
+    langsWithUrls.forEach((lang) => {
+      const errors = lang.urls.filter((url) => url.error);
+      if (errors.length) {
+        // Create an errors array if it doesn't exist
+        this._urlErrors ??= [];
+        this._urlErrors.push(...errors);
+      }
+    });
+
+    // Do not continue if any errors
+    if (this._urlErrors?.length) return;
 
     const { org, site, title, options } = this.project;
 
-    await copySourceLangs(org, site, title, options, this._copyLangs, urls);
+    await copySourceLangs(org, site, title, options, this._copyLangs, urls, langsWithUrls);
     this.handleSaveLangs();
     this.requestUpdate();
   }
