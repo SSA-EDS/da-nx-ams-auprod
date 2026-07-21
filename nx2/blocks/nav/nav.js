@@ -88,7 +88,7 @@ class NXNav extends LitElement {
       const lockup = await loadHrefSvg(href);
       brandLink.append(lockup);
     }
-    brandLink.href = '/';
+    brandLink.href = 'https://ent-da.live/';
 
     return brandLink;
   }
