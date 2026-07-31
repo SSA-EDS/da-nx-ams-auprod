@@ -1529,7 +1529,7 @@ describe('translationMetadata', () => {
         },
       };
       const urls = [{
-        suppliedPath: 'https://main--da-cc--adobecom.aem.page/drafts/seo-test/creativecloud/gif-file.html',
+        suppliedPath: 'https://main--da-cc--adobecom.ent-aem.page/drafts/seo-test/creativecloud/gif-file.html',
         content: '<p>x</p>',
       }];
       await primeGlossaryFromFetch();

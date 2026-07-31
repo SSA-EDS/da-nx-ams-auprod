@@ -131,12 +131,12 @@ export function getMediaLibraryAppHref(sitePath) {
   const normalized = normalizeSitePath(sitePath);
   if (!normalized) return '';
 
-  let base = 'https://da.live/apps/media-library';
+  let base = 'https://ent-da.live/apps/media-library';
   let queryParams = '';
 
   if (typeof window !== 'undefined' && window.location) {
     const { hostname, origin, search } = window.location;
-    if (hostname === 'da.live' || hostname.endsWith('.da.live')) {
+    if (hostname === 'ent-da.live' || hostname.endsWith('.ent-da.live')) {
       base = `${origin}/apps/media-library`;
     }
 

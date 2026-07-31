@@ -3,8 +3,8 @@ import { MESSAGE_TYPES } from '../../../utils/message-types.js';
 
 const DA_LIVE_PREVIEW_ENVS = {
   local: 'localhost:8000',
-  stage: 'stage-preview.da.live',
-  prod: 'preview.da.live',
+  stage: 'stage-preview.ent-da.live',
+  prod: 'preview.ent-da.live',
 };
 
 export async function getToken() {
@@ -23,7 +23,7 @@ function getLivePreviewDomain() {
     localStorage.setItem('da-live-preview', query);
   }
   const env = DA_LIVE_PREVIEW_ENVS[localStorage.getItem('da-live-preview') || 'prod'];
-  return window.location.origin === 'https://da.page' ? env.replace('.live', '.page') : env;
+  return window.location.origin === 'https://ent-da.page' ? env.replace('.live', '.page') : env;
 }
 
 function getLivePreviewUrl(owner, repo) {
@@ -272,7 +272,7 @@ export async function signIn() {
 
 export async function handlePreview(ctx) {
   const path = ctx.path.endsWith('/') ? `${ctx.path}index` : `${ctx.path}`;
-  const url = `https://admin.hlx.page/preview/${ctx.owner}/${ctx.repo}/main${path}`;
+  const url = `https://admin.ent-aem.page/preview/${ctx.owner}/${ctx.repo}/main${path}`;
   const token = await getToken();
   const resp = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
   if (!resp.ok) {

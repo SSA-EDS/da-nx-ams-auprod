@@ -10,7 +10,7 @@ import { MAX_CONCURRENT_READS } from '../../project/index.js';
 
 const style = await loadStyle(import.meta.url);
 
-const DA_LIVE = 'https://da.live';
+const DA_LIVE = 'https://ent-da.live';
 
 class NxLocValidate extends LitElement {
   static properties = {
@@ -193,7 +193,7 @@ class NxLocValidate extends LitElement {
   }
 
   get origin() {
-    return `${this.originPrefix}--${this.project.site}--${this.project.org}.aem.${this.project.snapshot ? 'reviews' : 'page'}`;
+    return `${this.originPrefix}--${this.project.site}--${this.project.org}.ent-aem.${this.project.snapshot ? 'reviews' : 'page'}`;
   }
 
   get subOrigin() {

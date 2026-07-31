@@ -50,7 +50,7 @@ describe('media', () => {
     });
 
     it('returns regular document URL unchanged', () => {
-      const docUrl = 'https://main--site--org.aem.page/docs/guide';
+      const docUrl = 'https://main--site--org.ent-aem.page/docs/guide';
       expect(convertEmbedToWatchUrl(docUrl)).to.equal(docUrl);
     });
 

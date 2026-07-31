@@ -22,7 +22,7 @@ function affectedFolders(toolName, input) {
 
 const AGENT_URL = new URLSearchParams(window.location.search).get('ref') === 'local'
   ? 'http://localhost:4002/chat'
-  : 'https://agent.da.live/chat';
+  : 'https://agent.ent-da.live/chat';
 
 const isToolPart = (p) => p?.type === PART_TYPE.TOOL;
 const hasResult = (p) => p.state === TOOL_STATE.OUTPUT_AVAILABLE

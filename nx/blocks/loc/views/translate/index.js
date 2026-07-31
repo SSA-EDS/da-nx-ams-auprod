@@ -39,7 +39,7 @@ export async function getUrls(
     return {
       ...url,
       ...formatted,
-      aemHref: `https://main--${site}--${org}.aem.page${formatted.aemBasePath}`,
+      aemHref: `https://main--${site}--${org}.ent-aem.page${formatted.aemBasePath}`,
     };
   });
 

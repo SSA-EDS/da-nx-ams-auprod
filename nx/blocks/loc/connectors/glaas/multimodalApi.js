@@ -370,7 +370,7 @@ export async function fetchBlobFromSignedUrl(signedURL) {
   }
 }
 
-const CONTENT_DA_LIVE = 'content.da.live';
+const CONTENT_DA_LIVE = 'content.ent-da.live';
 
 /** Encode delivery URL for HTML src/srcset (spaces → %20, valid srcset). */
 export function contentDaLiveHrefForAttribute(href) {
@@ -416,7 +416,7 @@ function isGlaasMultimodalImageUrl(href) {
   }
 }
 
-/** MVP: absolute https://content.da.live/... png/jpeg image URLs from img[src] only. */
+/** MVP: absolute https://content.ent-da.live/... png/jpeg image URLs from img[src] only. */
 export function collectContentDaLiveImageUrls(html, { org, site } = {}) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const urls = new Set();
@@ -446,7 +446,7 @@ export function contentDaLivePathKey(href) {
   }
 }
 
-/** Replace content.da.live image URLs using pathname → new delivery URL map. */
+/** Replace content.ent-da.live image URLs using pathname → new delivery URL map. */
 export function rewriteContentDaLiveImageUrls(html, pathToNewUrl) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const resolveNewUrl = (href) => {
@@ -655,11 +655,11 @@ async function fetchMultimodalImage({ imageIndex, imageUrl, logRequest }) {
   try {
     imageResp = await daFetch({ url: imageSourceUrl });
   } catch {
-    return { error: 'Error fetching content.da.live image.', step: `fetch-image-${imageIndex}` };
+    return { error: 'Error fetching content.ent-da.live image.', step: `fetch-image-${imageIndex}` };
   }
   if (!imageResp.ok) {
     return {
-      error: 'Error fetching content.da.live image.',
+      error: 'Error fetching content.ent-da.live image.',
       step: `fetch-image-${imageIndex}`,
       status: imageResp.status,
     };

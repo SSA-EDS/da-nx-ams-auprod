@@ -1,10 +1,10 @@
 # `nx2/utils/api.js` — DA / AEM Admin API
 
-A unified client for talking to **DA admin** (`admin.da.live`) and the **AEM admin API** in either its legacy form (`admin.hlx.page`, "helix5") or its new form (`api.aem.live`, "helix6"). Every method auto-routes by the per-site **hlx6** upgrade flag — once a site has been upgraded, calls flow to the new origin; otherwise they fall back to the legacy origin.
+A unified client for talking to **DA admin** (`admin.ent-da.live`) and the **AEM admin API** in either its legacy form (`admin.ent-aem.page`, "helix5") or its new form (`api.ent-aem.live`, "helix6"). Every method auto-routes by the per-site **hlx6** upgrade flag — once a site has been upgraded, calls flow to the new origin; otherwise they fall back to the legacy origin.
 
 The module ships its low-level primitive (`daFetch`), an upgrade detector (`isHlx6`), helpers (`fromPath`, `signout`, `asJson`, `asText`), and **eight namespaced surfaces**: `source`, `versions`, `config`, `org`, `status`, `aem`, `snapshot`, `jobs`. Type definitions live in `[api.d.ts](./api.d.ts)` — VSCode picks them up automatically and surfaces overloads, field-level docs, and inline shapes.
 
-> **Routing model.** Some endpoints are owned by DA itself (`source`, `list`, `config`, `versions`) and DA proxies them to AEM when the site is upgraded. Others are AEM-only (`status`, `preview`, `live`, `snapshots`, `jobs`) and live on either `admin.hlx.page` (legacy) or `api.aem.live` (hlx6). The module hides this distinction; callers always pass `{ org, site, path }` and get a `Response` back.
+> **Routing model.** Some endpoints are owned by DA itself (`source`, `list`, `config`, `versions`) and DA proxies them to AEM when the site is upgraded. Others are AEM-only (`status`, `preview`, `live`, `snapshots`, `jobs`) and live on either `admin.ent-aem.page` (legacy) or `api.ent-aem.live` (hlx6). The module hides this distinction; callers always pass `{ org, site, path }` and get a `Response` back.
 
 ---
 
@@ -458,7 +458,7 @@ The low-level fetch primitive. Most callers shouldn't use it directly — namesp
 
 ```js
 const resp = await daFetch({
-  url: 'https://admin.da.live/some-endpoint',
+  url: 'https://admin.ent-da.live/some-endpoint',
   opts: { method: 'POST', body: formData },
 });
 ```
@@ -531,9 +531,9 @@ Imported from `./utils.js`:
 
 | Constant        | Value                               | Used for              |
 | --------------- | ----------------------------------- | --------------------- |
-| `DA_ADMIN`      | `https://admin.da.live` (env-aware) | DA admin origin       |
-| `HLX_ADMIN`     | `https://admin.hlx.page`            | Legacy AEM admin      |
-| `AEM_API`       | `https://api.aem.live`              | New AEM admin (hlx6)  |
+| `DA_ADMIN`      | `https://admin.ent-da.live` (env-aware) | DA admin origin       |
+| `HLX_ADMIN`     | `https://admin.ent-aem.page`            | Legacy AEM admin      |
+| `AEM_API`       | `https://api.ent-aem.live`              | New AEM admin (hlx6)  |
 | `ALLOWED_TOKEN` | array of origins                    | Auth header allowlist |
 
 
@@ -570,7 +570,7 @@ window.fetch = async (url, opts = {}) => {
 };
 
 await source.get({ org: 'foo', site: 'bar', path: '/x.html' });
-expect(lastCall().url).to.equal('https://admin.da.live/source/foo/bar/x.html');
+expect(lastCall().url).to.equal('https://admin.ent-da.live/source/foo/bar/x.html');
 ```
 
 The IMS dependency is mocked via the importmap in `web-test-runner.config.mjs` (`/nx2/utils/ims.js` → `/nx2/test/mocks/ims.js`).

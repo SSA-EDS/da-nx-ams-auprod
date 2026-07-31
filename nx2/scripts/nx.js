@@ -16,8 +16,8 @@ const NX_BLOCKS = new Set(['importer', 'exp', 'site-apps', 'hero', 'card', 'sect
 
 const EW_ORIGINS = {
   dev: 'http://localhost:3001',
-  stage: 'https://main--ew-extensions--adobe-rnd.aem.page',
-  prod: 'https://main--ew-extensions--adobe-rnd.aem.live',
+  stage: 'https://main--ew-extensions--adobe-rnd.ent-aem.page',
+  prod: 'https://main--ew-extensions--adobe-rnd.ent-aem.live',
 };
 
 export function getColorScheme() {
@@ -39,7 +39,7 @@ export function getLocale(locales) {
 
 export const env = (() => {
   const { host } = window.location;
-  if (host.endsWith('.aem.live')) return 'prod';
+  if (host.endsWith('.ent-aem.live')) return 'prod';
   if (!['--', 'local'].some((check) => host.includes(check))) return 'prod';
   if (['--'].some((check) => host.includes(check))) return 'stage';
   return 'dev';

@@ -520,8 +520,8 @@ class NxSnapshot extends LitElement {
     const snapshotExists = this._snapshotExists[res.path] === true;
     return html`
       <div class="nx-url-accordion">
-        <a href="${res.url}" target="_blank">Open on aem.reviews</a>
-        <a href="${res.aemLive}" target="_blank">Open on aem.live</a>
+        <a href="${res.url}" target="_blank">Open on ent-aem.reviews</a>
+        <a href="${res.aemLive}" target="_blank">Open on ent-aem.live</a>
         <a href="${res.daEdit}" target="_blank">Edit in DA</a>
         ${snapshotExists ? html`
           <a href="${res.daSnapshotEdit}" target="_blank">Edit Snapshot in DA</a>

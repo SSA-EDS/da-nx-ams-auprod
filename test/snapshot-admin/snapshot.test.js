@@ -33,7 +33,7 @@ function setupFetchMock(originalFetch, overrides = {}) {
     }
 
     // Default: manifest response for snapshot API
-    if (urlStr.includes('admin.hlx.page/snapshot/')) {
+    if (urlStr.includes('admin.ent-aem.page/snapshot/')) {
       return mockManifestResponse();
     }
 
@@ -282,7 +282,7 @@ describe('NxSnapshot', () => {
 
     it('Dispatches delete event on success', async () => {
       setupFetchMock(originalFetch, {
-        'admin.hlx.page/snapshot/': (urlStr, opts) => {
+        'admin.ent-aem.page/snapshot/': (urlStr, opts) => {
           if (opts?.method === 'POST' || opts?.method === 'DELETE') {
             return new Response('{}', { status: 200, headers: new Headers({ 'x-da-actions': '' }) });
           }
@@ -303,7 +303,7 @@ describe('NxSnapshot', () => {
 
     it('Sets error message on API failure', async () => {
       setupFetchMock(originalFetch, {
-        'admin.hlx.page/snapshot/': (urlStr, opts) => {
+        'admin.ent-aem.page/snapshot/': (urlStr, opts) => {
           if (opts?.method === 'POST') {
             return new Response('{}', { status: 403, headers: new Headers() });
           }
@@ -388,8 +388,8 @@ describe('NxSnapshot', () => {
       const el = await createElement();
       el._manifest = {
         resources: [
-          { path: '/page1', aemPreview: 'https://main--site--org.aem.page/page1' },
-          { path: '/page2', aemPreview: 'https://main--site--org.aem.page/page2' },
+          { path: '/page1', aemPreview: 'https://main--site--org.ent-aem.page/page1' },
+          { path: '/page2', aemPreview: 'https://main--site--org.ent-aem.page/page2' },
         ],
       };
       await el.handleToggleAccordion('/page1');
@@ -547,7 +547,7 @@ describe('NxSnapshot', () => {
   describe('handleCopySingleUrl', () => {
     it('Auto-overwrites fork when snapshot does not exist', async () => {
       const el = await createElement();
-      const res = { path: '/page1', aemPreview: 'https://main--site--org.aem.page/page1' };
+      const res = { path: '/page1', aemPreview: 'https://main--site--org.ent-aem.page/page1' };
       el._snapshotExists = {};
       // Stub executeCopy to avoid actual copy operations
       let executedMode;
@@ -559,7 +559,7 @@ describe('NxSnapshot', () => {
 
     it('Opens copy mode dialog for fork when snapshot exists', async () => {
       const el = await createElement();
-      const res = { path: '/page1', aemPreview: 'https://main--site--org.aem.page/page1' };
+      const res = { path: '/page1', aemPreview: 'https://main--site--org.ent-aem.page/page1' };
       el._snapshotExists = { '/page1': true };
       el.handleCopySingleUrl(res, 'fork');
       expect(el._copyModeDetails).to.not.be.undefined;
@@ -568,7 +568,7 @@ describe('NxSnapshot', () => {
 
     it('Opens copy mode dialog for promote', async () => {
       const el = await createElement();
-      const res = { path: '/page1', aemPreview: 'https://main--site--org.aem.page/page1' };
+      const res = { path: '/page1', aemPreview: 'https://main--site--org.ent-aem.page/page1' };
       el.handleCopySingleUrl(res, 'promote');
       expect(el._copyModeDetails).to.not.be.undefined;
       expect(el._pendingCopy.direction).to.equal('promote');
@@ -672,7 +672,7 @@ describe('NxSnapshot', () => {
       const accordion = el.shadowRoot.querySelector('.nx-url-accordion');
       expect(accordion).to.not.be.null;
       const links = accordion.querySelectorAll('a');
-      expect(links.length).to.equal(3); // reviews, aem.live, DA edit (no snapshot edit)
+      expect(links.length).to.equal(3); // reviews, ent-aem.live, DA edit (no snapshot edit)
     });
 
     it('Shows Edit Snapshot in DA when snapshot exists', async () => {
@@ -888,15 +888,15 @@ describe('NxSnapshot', () => {
     it('Polls job URL until state is stopped', async () => {
       let pollCount = 0;
       setupFetchMock(originalFetch, {
-        'admin.hlx.page/snapshot/': (urlStr, opts) => {
+        'admin.ent-aem.page/snapshot/': (urlStr, opts) => {
           if (opts?.method === 'POST') {
             return new Response(JSON.stringify({
-              links: { self: 'https://admin.hlx.page/job/org/site/main/snapshot/job-123' },
+              links: { self: 'https://admin.ent-aem.page/job/org/site/main/snapshot/job-123' },
             }), { status: 202, headers: new Headers({ 'x-da-actions': '' }) });
           }
           return mockManifestResponse();
         },
-        'admin.hlx.page/job/': () => {
+        'admin.ent-aem.page/job/': () => {
           pollCount += 1;
           const state = pollCount >= 2 ? 'stopped' : 'running';
           return new Response(JSON.stringify({ state }), {

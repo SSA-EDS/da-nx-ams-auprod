@@ -24,7 +24,7 @@ class NxBulk extends LitElement {
     const pageName = pathParts.pop();
     pathParts.push(pageName === 'index' ? '' : pageName);
 
-    file.aemPreview = `https://main--${repo}--${org}.aem.page/${pathParts.join('/')}`;
+    file.aemPreview = `https://main--${repo}--${org}.ent-aem.page/${pathParts.join('/')}`;
 
     let editView;
     if (file.ext === 'html') {

@@ -174,21 +174,21 @@ class Form extends LitElement {
     this._start({ schema, json });
   }
 
-  // TODO(EW): cross-app nav to the da.live schema editor. Revisit if EW should
+  // TODO(EW): cross-app nav to the ent-da.live schema editor. Revisit if EW should
   // own schema authoring rather than linking out.
   _schemaEditorHref() {
     const { owner, repo } = this._details ?? {};
-    if (!owner || !repo) return 'https://da.live/apps/schema';
-    return `https://da.live/apps/schema#/${owner}/${repo}`;
+    if (!owner || !repo) return 'https://ent-da.live/apps/schema';
+    return `https://ent-da.live/apps/schema#/${owner}/${repo}`;
   }
 
-  // TODO(EW): cross-app nav back to the da.live home. Revisit if EW should
+  // TODO(EW): cross-app nav back to the ent-da.live home. Revisit if EW should
   // provide its own "home" target.
   _goHome() {
     const { owner, repo } = this._details ?? {};
     if (!owner || !repo) return;
     const query = window.location.search ?? '';
-    window.location.href = `https://da.live${query}#/${owner}/${repo}`;
+    window.location.href = `https://ent-da.live${query}#/${owner}/${repo}`;
   }
 
   _renderCentered(content) {

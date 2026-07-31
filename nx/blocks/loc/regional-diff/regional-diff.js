@@ -11,7 +11,7 @@ const DELETED = 'deleted';
 const DELETED_TAG = 'da-diff-deleted';
 const SAME = 'same';
 
-const HLX_AEM_URL_REGEX = /\.hlx\.page\/|\.hlx\.live\/|\.aem\.page\//g;
+const HLX_AEM_URL_REGEX = /\.hlx\.page\/|\.hlx\.live\/|\.aem\.page\/|\.aem\.live\/|\.ent-aem\.page\//g;
 
 const sectionBlock = {
   isSection: true,
@@ -101,14 +101,14 @@ function normalizeHTMLFromElement(element) {
 }
 
 export async function normalizeLinks(doc, site, equivalentSites) {
-  // convert all urls with .hlx.page, .hlx.live, .aem.page, .aem.live to .aem.live
-  const links = doc.querySelectorAll('a[href*=".hlx.page/"], a[href*=".hlx.live/"], a[href*=".aem.page/"], a[href*=".aem.live/"], source[srcset*=".hlx.page/"], source[srcset*=".hlx.live/"], source[srcset*=".aem.page/"], source[srcset*=".aem.live/"], img[src*=".hlx.page/"], img[src*=".hlx.live/"], img[src*=".aem.page/"], img[src*=".aem.live/"]');
+  // convert .hlx.page, .hlx.live, .aem.page, .aem.live, .ent-aem.page urls to .ent-aem.live
+  const links = doc.querySelectorAll('a[href*=".hlx.page/"], a[href*=".hlx.live/"], a[href*=".aem.page/"], a[href*=".aem.live/"], a[href*=".ent-aem.page/"], a[href*=".ent-aem.live/"], source[srcset*=".hlx.page/"], source[srcset*=".hlx.live/"], source[srcset*=".aem.page/"], source[srcset*=".aem.live/"], source[srcset*=".ent-aem.page/"], source[srcset*=".ent-aem.live/"], img[src*=".hlx.page/"], img[src*=".hlx.live/"], img[src*=".aem.page/"], img[src*=".aem.live/"], img[src*=".ent-aem.page/"], img[src*=".ent-aem.live/"]');
   const tagToAttr = { A: 'href', IMG: 'src', SOURCE: 'srcset' };
   links.forEach((el) => {
     const urlAttr = tagToAttr[el.tagName];
     if (!urlAttr) return;
     let url = el[urlAttr];
-    url = url.replace(HLX_AEM_URL_REGEX, '.aem.live/');
+    url = url.replace(HLX_AEM_URL_REGEX, '.ent-aem.live/');
     const linkSite = url.split('--')[1];
     if (equivalentSites.has(linkSite)) {
       url = url.replace(`--${linkSite}--`, `--${site}--`);

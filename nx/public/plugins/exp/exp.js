@@ -17,8 +17,8 @@ const branch = searchParams.get('nx') || 'main';
 // this branch's exp block statically imports, so loadIms memoization is
 // shared and imslib bootstraps once.
 export const EXP_SRC = branch === 'main'
-  ? 'https://da.live/plugins/exp?nxver=2'
-  : `https://main--da-live--adobe.aem.live/plugins/exp?nx=${branch}&nxver=2`;
+  ? 'https://ent-da.live/plugins/exp?nxver=2'
+  : `https://main--da-live--adobe.ent-aem.live/plugins/exp?nx=${branch}&nxver=2`;
 
 const MAIN_SELECTOR = 'aem-sidekick-exp';
 

@@ -31,7 +31,7 @@ function mockFetch(originalFetch, apiOverrides = {}) {
     }
 
     // Default: proper manifest for snapshot API calls
-    if (urlStr.includes('admin.hlx.page/snapshot/')) return mockManifestResponse();
+    if (urlStr.includes('admin.ent-aem.page/snapshot/')) return mockManifestResponse();
 
     return new Response('{}', { status: 200, headers: new Headers() });
   };
@@ -80,7 +80,7 @@ describe('NxSnapshotAdmin', () => {
 
     it('Sets error when API returns failure', async () => {
       window.fetch = mockFetch(originalFetch, {
-        'admin.hlx.page/snapshot/': (urlStr) => {
+        'admin.ent-aem.page/snapshot/': (urlStr) => {
           if (urlStr.endsWith('/main')) {
             return new Response('{}', { status: 403, headers: new Headers() });
           }
@@ -111,12 +111,12 @@ describe('NxSnapshotAdmin', () => {
   describe('getSnapshots - success', () => {
     it('Fetches and stores snapshots for valid sitePath', async () => {
       window.fetch = mockFetch(originalFetch, {
-        'admin.hlx.page/snapshot/': (urlStr) => {
+        'admin.ent-aem.page/snapshot/': (urlStr) => {
           if (urlStr.endsWith('/main')) return createSnapshotResponse(['snap-1', 'snap-2']);
           return mockManifestResponse();
         },
         'helix-snapshot-scheduler': () => new Response('', { status: 200, headers: new Headers() }),
-        'admin.hlx.page/status/': () => new Response(
+        'admin.ent-aem.page/status/': () => new Response(
           JSON.stringify({ live: { permissions: ['read'] } }),
           { status: 200, headers: new Headers({ 'Content-Type': 'application/json' }) },
         ),

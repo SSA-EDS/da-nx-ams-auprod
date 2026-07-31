@@ -168,7 +168,7 @@ function replaceHtml(text, fromOrg, fromRepo, options = {}) {
   let inner = text;
 
   if (fromOrg && fromRepo && replaceRelative) {
-    const fromOrigin = `https://main--${fromRepo}--${fromOrg}.aem.live`;
+    const fromOrigin = `https://main--${fromRepo}--${fromOrg}.ent-aem.live`;
     inner = text
       .replaceAll('./media', `${fromOrigin}/media`)
       .replaceAll('href="/', `href="${fromOrigin}/`);

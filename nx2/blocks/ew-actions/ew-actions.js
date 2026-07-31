@@ -25,7 +25,7 @@ const withHtmlExt = (segment) => {
 };
 
 /**
- * Shape expected by da-prepare and its OOTB actions (matches da.live pathDetails).
+ * Shape expected by da-prepare and its OOTB actions (matches ent-da.live pathDetails).
  * @param {{ org?: string, site?: string, path?: string, fullpath?: string } | null} state
  */
 function buildPrepareDetails(state) {

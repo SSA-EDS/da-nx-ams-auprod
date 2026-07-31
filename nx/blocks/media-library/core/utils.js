@@ -149,7 +149,7 @@ export async function livePreviewLogin(owner, repo) {
     const { accessToken } = await loadIms() || {};
     const url = `${getLivePreviewUrl(owner, repo)}/gimme_cookie`;
 
-    debugLog('Setting preview.da.live cookie', { owner, repo, url });
+    debugLog('Setting preview.ent-da.live cookie', { owner, repo, url });
 
     const response = await fetch(url, {
       credentials: 'include',
@@ -157,14 +157,14 @@ export async function livePreviewLogin(owner, repo) {
     });
 
     if (!response.ok) {
-      debugLog('Preview.da.live login failed', { status: response.status });
+      debugLog('Preview.ent-da.live login failed', { status: response.status });
       return false;
     }
 
-    debugLog('Preview.da.live cookie set successfully');
+    debugLog('Preview.ent-da.live cookie set successfully');
     return true;
   } catch (error) {
-    debugLog('Preview.da.live login failed', error);
+    debugLog('Preview.ent-da.live login failed', error);
     return false;
   }
 }
