@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import { HLX_ADMIN, AEM_API, DA_ADMIN, ALLOWED_TOKEN } from './utils.js';
 
-const { loadIms, handleSignIn } = await (async () => {
+export const { loadIms, handleSignIn } = await (async () => {
   try {
     const { getNx } = await import(`${window.location.origin}/scripts/utils.js`);
     return await import(`${getNx()}/utils/ims.js`);
@@ -73,9 +73,12 @@ export const aem = {
 
 // config: top-level org/site config.
 export const config = {
-  get: withArgs(async ({ org, site }) => {
+  get: withArgs(async ({ org, site, cachebust }) => {
     const url = await getDaApiPath(CONFIG, org, site);
-    return daFetch({ url });
+    const finalUrl = cachebust
+      ? `${url}${url.includes('?') ? '&' : '?'}nocache=${Date.now()}`
+      : url;
+    return daFetch({ url: finalUrl });
   }),
 
   save: withArgs(async ({ org, site, body }) => {
@@ -120,7 +123,7 @@ export const jobs = {
 // org: organization-level operations. New-API only; no hlx6 detection
 // (no site to probe). The endpoint will 404 on non-migrated orgs.
 const orgNs = {
-  listSites: async ({ org }) => daFetch({ url: `${AEM_API}/${org}/sites` }),
+  listSites: async ({ org }) => daFetch({ url: `${AEM_API}/${org}/source/` }),
 };
 export { orgNs as org };
 
@@ -203,21 +206,45 @@ export const source = {
   // Returns `{ ok, items, continuationToken, permissions }`. Pagination
   // continues when the server returns a `da-continuation-token` header; pass
   // it back via the method's `continuationToken` arg to fetch the next page.
+  //
+  // Org-level listing (no `site`) merges DA-legacy folders with hlx6
+  // source-bus sites — each API is blind to the other's sites, so both are
+  // queried (on the first page only; hlx6 has no pagination) and the
+  // normalized results are deduped by name.
   list: withArgs(async ({ org, site, path, continuationToken, opts }) => {
     const cleanPath = (path || '').replace(/\/$/, '');
     const parentPath = `/${org}${site ? `/${site}` : ''}${cleanPath}`;
     const fetchOpts = continuationToken
       ? { ...opts, headers: { ...opts?.headers, 'da-continuation-token': continuationToken } }
       : opts;
+
+    if (!site) {
+      // Only DA returns a continuation token; hlx6 has no pagination, so its
+      // (unpaginated) site list is only fetched on the first page.
+      const [legacyResult, sitesResult] = await Promise.allSettled([
+        daFetch({ url: await getDaApiPath(LIST, org, site, path), opts: fetchOpts }),
+        continuationToken ? null : orgNs.listSites({ org }),
+      ]);
+      const legacyResp = legacyResult.status === 'fulfilled' ? legacyResult.value : undefined;
+      const sitesResp = sitesResult.status === 'fulfilled' ? sitesResult.value : undefined;
+      const legacyItems = await parseListItems(legacyResp, parentPath);
+      const siteItems = await parseListItems(sitesResp, parentPath);
+      const items = dedupeByName([...legacyItems, ...siteItems]);
+      const nextToken = legacyResp?.headers?.get?.('da-continuation-token') || null;
+      return {
+        ok: !!(legacyResp?.ok || sitesResp?.ok),
+        items,
+        continuationToken: nextToken,
+        permissions: legacyResp?.permissions,
+      };
+    }
+
     let resp;
-    // Org-only list (no site) is DA-legacy only; hlx6 has no equivalent.
-    if (site) {
-      const hlx6 = await isHlx6(org, site);
-      if (hlx6) {
-        const slashed = path?.endsWith('/') ? path : `${path ?? ''}/`;
-        const url = await getDaApiPath(SOURCE, org, site, slashed);
-        resp = await daFetch({ url, opts: fetchOpts });
-      }
+    const hlx6 = await isHlx6(org, site);
+    if (hlx6) {
+      const slashed = path?.endsWith('/') ? path : `${path ?? ''}/`;
+      const url = await getDaApiPath(SOURCE, org, site, slashed);
+      resp = await daFetch({ url, opts: fetchOpts });
     }
     if (!resp) {
       const url = await getDaApiPath(LIST, org, site, path);
@@ -242,7 +269,12 @@ export const source = {
     if (hlx6) {
       opts.body = body;
       if (ext) opts.headers = { 'Content-Type': TYPE_MAP[ext] };
-      return daFetch({ url, opts });
+      const resp = await daFetch({ url, opts });
+      // hlx6 source save returns an empty body, whereas DA returns
+      // { source: { contentUrl } }. Normalize the success case to that shape
+      // (contentUrl = the source URL just written) so callers can read
+      // source.contentUrl uniformly across hlx5/hlx6.
+      return resp.ok ? withSourceJson(resp, url) : resp;
     }
     const formData = new FormData();
     formData.append('data', new Blob([body], { type: TYPE_MAP[ext] }));
@@ -306,6 +338,26 @@ export const source = {
   deleteFolder: withArgs(async ({ org, site, path }) => {
     const url = await getDaApiPath(SOURCE, org, site, `${path}/`);
     return daFetch({ url, opts: { method: 'DELETE' } });
+  }),
+
+  copyFolder: withArgs(async ({
+    org, site, path, destination, collision,
+  }) => {
+    const hlx6 = await isHlx6(org, site);
+    if (hlx6) {
+      const folderPath = path.endsWith('/') ? path : `${path}/`;
+      const folderDestination = destination.endsWith('/') ? destination : `${destination}/`;
+      const url = new URL(await getDaApiPath(SOURCE, org, site, folderDestination));
+      url.searchParams.set('source', folderPath);
+      if (collision) url.searchParams.set('collision', collision);
+      return daFetch({ url: url.toString(), opts: { method: 'PUT' } });
+    }
+    const formData = new FormData();
+    formData.append('destination', destination);
+    return daFetch({
+      url: `${DA_ADMIN}/copy/${org}/${site}${path}`,
+      opts: { method: 'POST', body: formData },
+    });
   }),
 };
 
@@ -575,7 +627,8 @@ async function getAemApiPath(api, org, site, path = '') {
 // can be either `{ org, site, path, ...extras }` or a `/org/site/file/path`
 // string; `extras` (second positional) merges in when arg is a string.
 // `org` is required; `site` is required by most methods but optional for a
-// few (e.g., `source.list({ org })` lists at the org level on legacy DA).
+// few (e.g., `source.list({ org })` lists at the org level, merging DA-legacy
+// folders with hlx6 source-bus sites).
 // Bad input is logged but still passed through — the resulting fetch
 // fails naturally and callers handle non-ok responses as usual.
 function withArgs(fn) {
@@ -600,6 +653,14 @@ function normalizePath(path) {
   if (Array.isArray(path)) return path.map(normalizePath);
   if (typeof path !== 'string') return path;
   return path.startsWith('/') ? path : `/${path}`;
+}
+
+// Shadow a Response's `json()` so it resolves to the DA-shaped
+// `{ source: { contentUrl } }`. Used for hlx6 saves, whose body is empty —
+// preserves the original ok/status/headers/permissions.
+function withSourceJson(resp, contentUrl) {
+  resp.json = async () => ({ source: { contentUrl } });
+  return resp;
 }
 
 function jsonOpts(method, payload) {
@@ -628,36 +689,61 @@ async function callPath({
   return daFetch({ url, opts: { method } });
 }
 
+function toHlx6DaItem(parentPath, item) {
+  // Normalize folder
+  const isFolder = item.name.endsWith('/');
+  let name = isFolder ? item.name.slice(0, -1) : item.name;
+
+  // Set the path before extension removal
+  const path = `${parentPath}/${name}`;
+
+  // Remove extension for display
+  const nameSplit = name.split('.');
+  name = nameSplit.length > 1 ? nameSplit[0] : name;
+
+  // Scaffold out the basics
+  const daItem = { name, path, contentType: item['content-type'] };
+
+  const ext = nameSplit.length > 1 && nameSplit.pop();
+  if (ext) daItem.ext = ext;
+
+  const lastModified = item['last-modified'];
+  if (lastModified) {
+    const unixTime = Math.floor(new Date(lastModified).getTime());
+    daItem.lastModified = unixTime;
+  }
+
+  return daItem;
+}
+
 function hlx6ToDaList(parentPath, items) {
   return items.map((item) => {
-    const contentType = item['content-type'];
+    // Legacy DA items (no content-type) are returned as-is; callers handle their edge cases.
+    if (!item['content-type']) return item;
+    // HLX6 items: filter out hidden or nameless entries, then normalize.
+    if (!item.name || item.name.startsWith('.')) return null;
+    return toHlx6DaItem(parentPath, item);
+  }).filter(Boolean);
+}
 
-    // Only HLX6 has a content type
-    if (!contentType) return item;
+// Parses a (possibly failed) list Response into normalized items, or `[]`
+// on non-ok / unparseable bodies. Used to merge org-level DA-legacy and
+// hlx6 source-bus listings, where either side may 404 independently.
+async function parseListItems(resp, parentPath) {
+  if (!resp?.ok) return [];
+  let raw;
+  try {
+    raw = await resp.json();
+  } catch { return []; }
+  return Array.isArray(raw) ? hlx6ToDaList(parentPath, raw) : [];
+}
 
-    // Normalize folder
-    const isFolder = item.name.endsWith('/');
-    let name = isFolder ? item.name.slice(0, -1) : item.name;
-
-    // Set the path before extension removal
-    const path = `${parentPath}/${name}`;
-
-    // Remove extension for display
-    const nameSplit = name.split('.');
-    name = nameSplit.length > 1 ? nameSplit[0] : name;
-
-    // Scaffold out the basics
-    const daItem = { name, path, contentType };
-
-    const ext = nameSplit.length > 1 && nameSplit.pop();
-    if (ext) daItem.ext = ext;
-
-    const lastModified = item['last-modified'];
-    if (lastModified) {
-      const unixTime = Math.floor(new Date(lastModified).getTime());
-      daItem.lastModified = unixTime;
-    }
-
-    return daItem;
+// Later occurrences of the same folder/file name are dropped.
+function dedupeByName(items) {
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item?.name || seen.has(item.name)) return false;
+    seen.add(item.name);
+    return true;
   });
 }
