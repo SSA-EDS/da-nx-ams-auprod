@@ -1,4 +1,4 @@
-import { env } from '../scripts/nx.js';
+import { env, loadStyle } from '../scripts/nx.js';
 
 export const SUPPORTED_FILES = {
   html: 'text/html',
@@ -41,8 +41,14 @@ const DA_LIVE_PREVIEW_ENVS = {
 };
 
 const DA_ETC_ENVS = {
-  dev: 'http://localhost:8787',
+  local: 'http://localhost:8787',
   prod: 'https://da-etc.adobeaem.workers.dev',
+};
+
+const DA_FEEDBACK_ENVS = {
+  local: 'http://localhost:8787/feedback',
+  stage: 'https://feedback.da.live/feedback',
+  prod: 'https://feedback.da.live/feedback',
 };
 
 function getEnv(key, envs) {
@@ -62,6 +68,7 @@ export const DA_COLLAB = getEnv('da-collab', DA_COLLAB_ENVS);
 export const DA_CONTENT = getEnv('da-content', DA_CONTENT_ENVS);
 export const DA_PREVIEW = getEnv('da-preview', DA_LIVE_PREVIEW_ENVS);
 export const DA_ETC = getEnv('da-etc', DA_ETC_ENVS);
+export const DA_FEEDBACK = getEnv('da-feedback', DA_FEEDBACK_ENVS);
 
 export const HLX_ADMIN = 'https://admin.ent-aem.page';
 export const AEM_API = 'https://api.ent-aem.live';
@@ -142,5 +149,5 @@ export const loadPageStyle = (href) => new Promise((resolve) => {
   }
 });
 
-export { loadStyle } from '../scripts/nx.js';
+export { loadStyle };
 export { default as loadScript } from '../../nx/utils/script.js';
