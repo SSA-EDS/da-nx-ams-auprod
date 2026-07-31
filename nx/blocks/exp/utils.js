@@ -135,7 +135,7 @@ export function getOrgSite(url) {
 
 function calcEditUrl(info, url) {
   if (!url || info.error) return null;
-  return `https://da.live/edit#/${info.org}/${info.repo}${info.path}`;
+  return `https://ent-da.live/edit#/${info.org}/${info.repo}${info.path}`;
 }
 
 function calcOpenUrl(info, url) {

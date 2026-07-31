@@ -1,6 +1,6 @@
 # Nexter (da-nx)
 
-A shell/framework for Adobe AEM Edge Delivery Services. Provides shared blocks, styles, scripts, and utilities consumed by Adobe sites like da.live.
+A shell/framework for Adobe AEM Edge Delivery Services. Provides shared blocks, styles, scripts, and utilities consumed by Adobe sites like ent-da.live.
 
 ## Decisions & rationale
 

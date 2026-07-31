@@ -59,8 +59,8 @@ describe('Regional diff', () => {
     original.body.innerHTML = await readFile({ path: './mocks/lang-content.html' });
     const modified = document.implementation.createHTMLDocument();
     modified.body.innerHTML = await readFile({ path: './mocks/regional-content-metadata.html' });
-    const acceptedHashes = ['9cf95b80d46d'];
-    const rejectedHashes = ['66962da704a6', '89071ca4be97'];
+    const acceptedHashes = ['9f0843db7c37'];
+    const rejectedHashes = ['b2a668af20da', 'fc263f4155b9'];
     const mainEl = await regionalDiff(original, modified, acceptedHashes, rejectedHashes);
     const expectedDiffedMain = await readFile({ path: './mocks/diffedMain-metadata.html' });
     expect(cleanHtmlWhitespace(mainEl.outerHTML))
@@ -183,12 +183,12 @@ describe('normalizeLinks', () => {
     return doc;
   }
 
-  it('converts .hlx.page, .hlx.live, .aem.page to .aem.live', async () => {
+  it('converts .hlx.page, .hlx.live, .ent-aem.page to .ent-aem.live', async () => {
     const hrefs = [
       'https://main--site--adobecom.hlx.page/foo',
       'https://main--site--adobecom.hlx.live/bar',
-      'https://main--site--adobecom.aem.page/baz',
-      'https://main--site--adobecom.aem.live/qux',
+      'https://main--site--adobecom.ent-aem.page/baz',
+      'https://main--site--adobecom.ent-aem.live/qux',
     ];
     const doc = createDocWithLinks(hrefs);
     const site = 'site';
@@ -196,13 +196,13 @@ describe('normalizeLinks', () => {
     await normalizeLinks(doc, site, equivalentSites);
     const links = [...doc.querySelectorAll('a')];
     links.forEach((link) => {
-      expect(link.href).to.match(/\.aem\.live\//);
-      expect(link.href).to.not.match(/\.hlx\.page|\.hlx\.live|\.aem\.page/);
+      expect(link.href).to.match(/\.ent-aem\.live\//);
+      expect(link.href).to.not.match(/\.hlx\.page|\.hlx\.live|\.aem\.page|\.aem\.live|\.ent-aem\.page/);
     });
   });
 
   it('replaces site in URL when equivalentSites contains the link site', async () => {
-    const href = 'https://main--foo--adobecom.aem.page/bar';
+    const href = 'https://main--foo--adobecom.ent-aem.page/bar';
     const doc = createDocWithLinks([href]);
     const site = 'site';
     const equivalentSites = new Set(['foo']);
@@ -210,7 +210,7 @@ describe('normalizeLinks', () => {
     const link = doc.querySelector('a');
     expect(link.href).to.include('--site--');
     expect(link.href).to.not.include('--foo--');
-    expect(link.href).to.match(/\.aem\.live\//);
+    expect(link.href).to.match(/\.ent-aem\.live\//);
   });
 
   it('does not change links if no matching patterns', async () => {
@@ -226,8 +226,8 @@ describe('normalizeLinks', () => {
   it('handles multiple links with mixed patterns', async () => {
     const hrefs = [
       'https://main--foo--adobecom.hlx.page/foo',
-      'https://main--bar--adobecom.aem.page/bar',
-      'https://main--baz--adobecom.aem.live/baz',
+      'https://main--bar--adobecom.ent-aem.page/bar',
+      'https://main--baz--adobecom.ent-aem.live/baz',
       'https://example.com/page',
     ];
     const doc = createDocWithLinks(hrefs);
@@ -236,11 +236,11 @@ describe('normalizeLinks', () => {
     await normalizeLinks(doc, site, equivalentSites);
     const links = [...doc.querySelectorAll('a')];
     expect(links[0].href).to.include('--bar--'); // foo replaced by bar
-    expect(links[0].href).to.match(/\.aem\.live\//);
+    expect(links[0].href).to.match(/\.ent-aem\.live\//);
     expect(links[1].href).to.not.include('--foo--');
     expect(links[1].href).to.include('--bar--');
-    expect(links[1].href).to.match(/\.aem\.live\//);
-    expect(links[2].href).to.match(/\.aem\.live\//);
+    expect(links[1].href).to.match(/\.ent-aem\.live\//);
+    expect(links[2].href).to.match(/\.ent-aem\.live\//);
     expect(links[3].href).to.equal('https://example.com/page');
   });
 });

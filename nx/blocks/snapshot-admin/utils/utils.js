@@ -31,11 +31,11 @@ async function pollJob(jobUrl, interval = 750) {
 function formatResources(name, resources) {
   return resources.map((res) => ({
     path: res.path,
-    aemPreview: `https://main--${site}--${org}.aem.page${res.path}`,
-    url: `https://${name}--main--${site}--${org}.aem.reviews${res.path}`,
-    aemLive: `https://main--${site}--${org}.aem.live${res.path}`,
-    daEdit: `https://da.live/edit#/${org}/${site}${res.path}`,
-    daSnapshotEdit: `https://da.live/edit#/${org}/${site}/.snapshots/${name}${res.path}`,
+    aemPreview: `https://main--${site}--${org}.ent-aem.page${res.path}`,
+    url: `https://${name}--main--${site}--${org}.ent-aem.reviews${res.path}`,
+    aemLive: `https://main--${site}--${org}.ent-aem.live${res.path}`,
+    daEdit: `https://ent-da.live/edit#/${org}/${site}${res.path}`,
+    daSnapshotEdit: `https://ent-da.live/edit#/${org}/${site}/.snapshots/${name}${res.path}`,
   }));
 }
 
@@ -277,8 +277,8 @@ export async function updateSchedule(snapshotId, approved = false) {
 
 export async function getUserPublishPermission(path = '/') {
   try {
-    // Use the admin.hlx.page status endpoint to check permissions
-    const statusURL = `https://admin.hlx.page/status/${org}/${site}/main${path}`;
+    // Use the admin.ent-aem.page status endpoint to check permissions
+    const statusURL = `https://admin.ent-aem.page/status/${org}/${site}/main${path}`;
     const resp = await daFetch({ url: statusURL });
     if (!resp.ok) return false;
 

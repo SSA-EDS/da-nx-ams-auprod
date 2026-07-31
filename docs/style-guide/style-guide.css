@@ -92,7 +92,7 @@ body {
 
 /* form.css references icons at a root-relative path that consuming sites are
    expected to serve; this repo doesn't ship them, so point this preview at a
-   live consumer (da.live) that does, instead of a broken image. */
+   live consumer (ent-da.live) that does, instead of a broken image. */
 .nx-checkbox input[type="checkbox"]:checked::after {
   mask-image: url('https://da.live/img/icons/s2-icon-checkmark-20-n.svg');
 }

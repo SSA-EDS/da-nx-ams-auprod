@@ -1,11 +1,6 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import { recommended, source, test } from '@adobe/eslint-config-helix';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 export default defineConfig([
   globalIgnores([
@@ -14,47 +9,74 @@ export default defineConfig([
     '**/nx/blocks/loc/regional-diff/object_hash.js',
     '**/nx/blocks/loc/views/complete/confetti.js',
     '**/nx/blocks/loc/connectors/sample/index.js',
+    'test/e2e',
+    'coverage',
+    '.claude',
   ]),
   {
     languageOptions: {
       ...recommended.languageOptions,
       ecmaVersion: 'latest',
       globals: {
-        ...globals.serviceworker,
         ...globals.browser,
         ...globals.mocha,
         ...globals.es6,
-        __rootdir: true,
       },
     },
     settings: {
-      'import/core-modules': ['da-lit', 'da-y-wrapper'],
+      'import/core-modules': ['da-lit', 'da-y-wrapper', 'da-parser'],
     },
     rules: {
       'class-methods-use-this': 0,
 
+      // match da-nx: allow single-line if/else without braces
+      curly: ['error', 'multi-line'],
+
       // headers not required to keep file size down
       'header/header': 0,
 
-      // TODO: Remove this after we fix the import cycle in edit.js and prose/index.js
+      'import/extensions': ['error', { js: 'always' }],
+
       'import/no-cycle': 'off',
 
       'import/no-unresolved': ['error', {
-        ignore: ['^https?://']
+        ignore: ['^https?://'],
       }],
 
       'import/prefer-default-export': 0,
 
-      'indent': ['error', 2, {
+      indent: ['error', 2, {
         ignoredNodes: ['TemplateLiteral *'],
         SwitchCase: 1,
       }],
+
+      'linebreak-style': ['error', 'unix'],
 
       'max-statements-per-line': ['error', { max: 2 }],
 
       'no-await-in-loop': 0,
 
       'no-param-reassign': [2, { props: false }],
+
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ForInStatement',
+          message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+        },
+        {
+          selector: 'LabeledStatement',
+          message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+        },
+        {
+          selector: 'WithStatement',
+          message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+        },
+      ],
+
+      'no-return-assign': ['error', 'except-parens'],
+
+      'no-underscore-dangle': ['error', { allowAfterThis: true }],
 
       'no-unused-vars': ['error', {
         argsIgnorePattern: '^_$|^e$',
@@ -76,7 +98,7 @@ export default defineConfig([
   source,
   test,
   {
-    // Allow console in test files
+    // Allow console and relax a few rules in test files
     files: ['test/**/*.js', 'nx2/test/**/*.js'],
     rules: {
       'max-classes-per-file': 0,
@@ -86,4 +108,3 @@ export default defineConfig([
     },
   },
 ]);
-

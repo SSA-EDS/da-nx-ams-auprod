@@ -47,8 +47,8 @@ const DA_ETC_ENVS = {
 
 const DA_FEEDBACK_ENVS = {
   local: 'http://localhost:8787/feedback',
-  stage: 'https://feedback.da.live/feedback',
-  prod: 'https://feedback.da.live/feedback',
+  stage: 'https://feedback.ent-da.live/feedback',
+  prod: 'https://feedback.ent-da.live/feedback',
 };
 
 function getEnv(key, envs) {

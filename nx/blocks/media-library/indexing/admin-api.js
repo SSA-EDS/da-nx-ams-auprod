@@ -133,7 +133,7 @@ export async function fetchPaginated(
   const sinceDuration = timestampToDuration(since);
   params.append('since', sinceDuration);
 
-  const baseUrl = `https://admin.hlx.page/${endpoint}/${org}/${repo}/${ref}`;
+  const baseUrl = `https://admin.ent-aem.page/${endpoint}/${org}/${repo}/${ref}`;
   const separator = endpoint === 'medialog' ? '/' : '';
   const url = `${baseUrl}${separator}?${params.toString()}`;
 
@@ -359,7 +359,7 @@ export async function streamLog(
     fetchParams.append('since', sinceDuration);
   }
 
-  const baseUrl = `https://admin.hlx.page/${endpoint}/${org}/${repo}/${ref}`;
+  const baseUrl = `https://admin.ent-aem.page/${endpoint}/${org}/${repo}/${ref}`;
   const separator = endpoint === 'medialog' ? '/' : '';
   let nextUrl = `${baseUrl}${separator}?${fetchParams.toString()}`;
 
@@ -423,7 +423,7 @@ function validateBulkStatusPaths(paths) {
 }
 
 export async function createBulkStatusJob(org, repo, ref, contentPath = null, options = {}) {
-  const url = `https://admin.hlx.page/status/${org}/${repo}/${ref}/*`;
+  const url = `https://admin.ent-aem.page/status/${org}/${repo}/${ref}/*`;
   let paths;
   if (options.paths && options.paths.length > 0) {
     paths = options.paths;
@@ -730,7 +730,7 @@ function toMarkdownFetchPath(pagePath, org, repo) {
 }
 
 function buildAemPageMarkdownUrl(pagePath, org, repo, ref = 'main') {
-  return `https://${ref}--${repo}--${org}.aem.page${toMarkdownFetchPath(pagePath, org, repo)}`;
+  return `https://${ref}--${repo}--${org}.ent-aem.page${toMarkdownFetchPath(pagePath, org, repo)}`;
 }
 
 function appendNoCacheParam(url) {
@@ -1049,7 +1049,7 @@ function isProtectedSiteAssetUrl(url, org, repo, ref = 'main') {
 
   try {
     const parsed = new URL(url);
-    return parsed.hostname === `${ref}--${repo}--${org}.aem.page`;
+    return parsed.hostname === `${ref}--${repo}--${org}.ent-aem.page`;
   } catch {
     return false;
   }

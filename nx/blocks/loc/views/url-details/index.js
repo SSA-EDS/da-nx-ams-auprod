@@ -21,7 +21,7 @@ export function getEditPath(path) {
   const view = hasExt ? 'sheet' : 'edit';
   const indexedPath = path.endsWith('/') ? `${path}index` : path;
   const editPath = hasExt ? indexedPath.replace('.json', '') : indexedPath;
-  return `https://da.live/${view}#${editPath}`;
+  return `https://ent-da.live/${view}#${editPath}`;
 }
 
 export function getAemPaths(path) {
@@ -31,7 +31,7 @@ export function getAemPaths(path) {
   if (parts[parts.length - 1] === 'index') parts[parts.length - 1] = '';
 
   const pathname = `/${parts.join('/')}`;
-  const getPath = (tld) => `https://main--${site}--${org}.aem.${tld}${pathname}`;
+  const getPath = (tld) => `https://main--${site}--${org}.ent-aem.${tld}${pathname}`;
 
   return {
     preview: getPath('page'),

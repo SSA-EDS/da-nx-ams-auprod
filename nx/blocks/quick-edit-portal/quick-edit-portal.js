@@ -27,7 +27,7 @@ function onMessage(e, ctx) {
 }
 
 async function initProse(owner, repo, path, el, ctx) {
-  const sourceUrl = `https://admin.da.live/source/${owner}/${repo}/${
+  const sourceUrl = `https://admin.ent-da.live/source/${owner}/${repo}/${
     path.endsWith('/') ? `${path.replace(/^\//, '')}index.html` : `${path.replace(/^\//, '')}.html`
   }`;
 

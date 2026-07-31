@@ -11,11 +11,11 @@ function renderAssistant(content) {
 
 describe('renderers link handling', () => {
   it('linkifies a bare URL in assistant prose', () => {
-    const host = renderAssistant('Your page is live at https://main--site--org.aem.live/index now.');
+    const host = renderAssistant('Your page is live at https://main--site--org.ent-aem.live/index now.');
     const link = host.querySelector('.message-content a');
     expect(link).to.exist;
-    expect(link.getAttribute('href')).to.equal('https://main--site--org.aem.live/index');
-    expect(link.textContent).to.equal('https://main--site--org.aem.live/index');
+    expect(link.getAttribute('href')).to.equal('https://main--site--org.ent-aem.live/index');
+    expect(link.textContent).to.equal('https://main--site--org.ent-aem.live/index');
     expect(link.getAttribute('target')).to.equal('_blank');
     expect(link.getAttribute('rel')).to.equal('noopener noreferrer');
   });

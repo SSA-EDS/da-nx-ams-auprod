@@ -2,7 +2,7 @@ import { getExt } from '../../../nx2/public/utils/getExt.js';
 import { daFetch } from '../../../nx2/utils/api.js';
 import { DA_ORIGIN } from '../../../nx2/public/utils/constants.js';
 
-const AEM_ORIGIN = 'https://admin.hlx.page';
+const AEM_ORIGIN = 'https://admin.ent-aem.page';
 
 function isBulkDa(action) {
   return action === 'versionsource';

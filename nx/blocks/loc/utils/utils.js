@@ -123,7 +123,7 @@ export function formatPath(org, site, sourceLocation, path) {
   const daBasePath = hasExt ? basePath : `${basePath}.html`;
 
   // Where would this live on AEM?
-  const aemHref = `https://main--${site}--${org}.aem.page${path}`;
+  const aemHref = `https://main--${site}--${org}.ent-aem.page${path}`;
 
   return {
     sourceLangPrefix,

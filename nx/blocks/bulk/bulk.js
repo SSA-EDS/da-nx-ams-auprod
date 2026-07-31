@@ -6,7 +6,7 @@ import { loadStyle } from '../../../nx2/utils/utils.js';
 await import('../../public/sl/components.js');
 const style = await loadStyle(import.meta.url);
 
-// const MOCK_URLS = 'https://main--docket--da-pilot.aem.page/about/faq\nhttps://main--docket--da-pilot.aem.page/about/release-notes\nhttps://main--docket--da-pilot.aem.page/about/release-notes/da-admin\nhttps://main--docket--da-pilot.aem.page/about/release-notes/da-collab\nhttps://main--docket--da-pilot.aem.page/about/release-notes/da-content\nhttps://main--docket--da-pilot.aem.page/about/release-notes/da-live';
+// const MOCK_URLS = 'https://main--docket--da-pilot.ent-aem.page/about/faq\nhttps://main--docket--da-pilot.ent-aem.page/about/release-notes\nhttps://main--docket--da-pilot.ent-aem.page/about/release-notes/da-admin\nhttps://main--docket--da-pilot.ent-aem.page/about/release-notes/da-collab\nhttps://main--docket--da-pilot.ent-aem.page/about/release-notes/da-content\nhttps://main--docket--da-pilot.ent-aem.page/about/release-notes/da-live';
 
 // Accepts a newline- or comma-separated list of URLs. Intended for external
 // pages linking into the bulk tool, e.g. `/bulk?urls=${encodeURIComponent(list)}`.

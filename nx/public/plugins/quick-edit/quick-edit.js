@@ -102,8 +102,8 @@ function setupParentController(loadPage) {
 
 function checkDomain() {
   const currentUrl = new URL(window.location.href);
-  if (currentUrl.origin.endsWith('.aem.page')) {
-    const newOrigin = currentUrl.origin.replace('.aem.page', '.preview.da.live');
+  if (currentUrl.origin.endsWith('.ent-aem.page')) {
+    const newOrigin = currentUrl.origin.replace('.ent-aem.page', '.preview.ent-da.live');
     const params = new URLSearchParams(currentUrl.search);
     if (!params.has('quick-edit')) params.set('quick-edit', 'on');
     const search = params.toString() ? `?${params.toString()}` : '';
@@ -126,8 +126,8 @@ function handleLoad(target, config, location, ctx) {
 function getQuickEditSrc() {
   const { search } = window.location;
   const ref = new URLSearchParams(search).get('quick-edit');
-  if (!ref || ref === 'on') return 'https://da.live/plugins/quick-edit';
-  return `https://main--da-live--adobe.aem.live/plugins/quick-edit?nx=${ref}`;
+  if (!ref || ref === 'on') return 'https://ent-da.live/plugins/quick-edit';
+  return `https://main--da-live--adobe.ent-aem.live/plugins/quick-edit?nx=${ref}`;
 }
 
 function setupIframeController({ detail: payload }, loadPage) {

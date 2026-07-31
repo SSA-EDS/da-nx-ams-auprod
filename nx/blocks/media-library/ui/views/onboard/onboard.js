@@ -132,9 +132,9 @@ class NxMediaOnboard extends LitElement {
         bubbles: true,
       }));
     } catch (_) {
-      logMediaLibraryError(ErrorCodes.ONBOARD_PARSE_ERROR, { expectedFormat: 'https://main--site--org.aem.page' });
+      logMediaLibraryError(ErrorCodes.ONBOARD_PARSE_ERROR, { expectedFormat: 'https://main--site--org.ent-aem.page' });
       this._urlError = true;
-      this._urlErrorMessage = 'Enter a URL in format: https://main--site--org.aem.page';
+      this._urlErrorMessage = 'Enter a URL in format: https://main--site--org.ent-aem.page';
       setTimeout(() => {
         this._urlError = false;
         this._urlErrorMessage = null;
@@ -231,7 +231,7 @@ class NxMediaOnboard extends LitElement {
           @change="${() => { this._urlError = false; this._urlErrorMessage = null; }}"
           type="text"
           name="siteUrl"
-          placeholder="https://main--site--org.aem.page"
+          placeholder="https://main--site--org.ent-aem.page"
           aria-label="Enter site URL to explore media"
           class="${this._urlError ? 'error' : nothing}"
           aria-describedby="${this._urlErrorMessage ? 'site-url-error' : nothing}"

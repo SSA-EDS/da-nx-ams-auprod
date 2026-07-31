@@ -50,7 +50,7 @@ export default class DaRollout extends LitElement {
   }
 
   open(prefix) {
-    window.open(`https://da.live/edit#${prefix.edit}`, `_${prefix.edit}`);
+    window.open(`https://ent-da.live/edit#${prefix.edit}`, `_${prefix.edit}`);
   }
 
   toggle(prefix) {

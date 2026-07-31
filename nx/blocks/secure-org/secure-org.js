@@ -130,7 +130,7 @@ class SecureOrg extends LitElement {
           </div>
         </div>
         <div class="config-preview-footer">
-          <a class="da-docs" href="https://docs.da.live/administrators/guides/permissions" target="_blank">
+          <a class="da-docs" href="https://docs.ent-da.live/administrators/guides/permissions" target="_blank">
             Read permission documentation
           </a>
           <div class="config-preview-action">

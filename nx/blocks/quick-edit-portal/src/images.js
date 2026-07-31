@@ -98,7 +98,7 @@ export async function handleImageReplace({ imageData, fileName, originalSrc }, c
     }
 
     // Construct the new image URL (AEM delivery URL)
-    const newSrc = `https://content.da.live/${ctx.owner}/${ctx.repo}${uploadPath}`;
+    const newSrc = `https://content.ent-da.live/${ctx.owner}/${ctx.repo}${uploadPath}`;
 
     // Update the ProseMirror document with the new image src
     updateImageInDocument(originalSrc, newSrc);

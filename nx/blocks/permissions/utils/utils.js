@@ -1,7 +1,7 @@
 import { AEM_ORIGIN, DA_ORIGIN } from '../../../../nx2/public/utils/constants.js';
 import { daFetch } from '../../../../nx2/utils/api.js';
 
-// See: https://www.aem.live/docs/authentication-setup-authoring
+// See: https://www.ent-aem.live/docs/authentication-setup-authoring
 const AEM_ROLES = ['admin', 'basic_author', 'basic_publish', 'author', 'publish', 'develop', 'config', 'config_admin'];
 
 function pathToDetails(path) {

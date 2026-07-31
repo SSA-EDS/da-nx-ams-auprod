@@ -104,7 +104,7 @@ function replaceLinks(html) {
 async function saveAllToDa(url, blob) {
   const { toOrg, toRepo, destPath, editPath, route } = url;
 
-  url.daHref = `https://da.live${route}#/${toOrg}/${toRepo}${editPath}`;
+  url.daHref = `https://ent-da.live${route}#/${toOrg}/${toRepo}${editPath}`;
 
   // Convert underscores to hyphens
   const formattedPath = destPath.replaceAll('media_', 'media-');

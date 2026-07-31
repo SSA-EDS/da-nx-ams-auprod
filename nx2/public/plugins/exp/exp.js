@@ -13,8 +13,8 @@ const { searchParams, origin, pathname, hash } = new URL(window.location.href);
 const branch = searchParams.get('nx') || 'main';
 
 export const EXP_SRC = branch === 'main'
-  ? 'https://da.live/plugins/exp'
-  : `https://main--da-live--adobe.aem.live/plugins/exp?nx=${branch}`;
+  ? 'https://ent-da.live/plugins/exp'
+  : `https://main--da-live--adobe.ent-aem.live/plugins/exp?nx=${branch}`;
 
 const MAIN_SELECTOR = 'aem-sidekick-exp';
 
