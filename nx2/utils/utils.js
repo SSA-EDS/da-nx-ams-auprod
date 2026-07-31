@@ -63,8 +63,8 @@ export const DA_CONTENT = getEnv('da-content', DA_CONTENT_ENVS);
 export const DA_PREVIEW = getEnv('da-preview', DA_LIVE_PREVIEW_ENVS);
 export const DA_ETC = getEnv('da-etc', DA_ETC_ENVS);
 
-export const HLX_ADMIN = 'https://admin.ent-aem.page';
-export const AEM_API = 'https://api.ent-aem.live';
+export const HLX_ADMIN = 'https://admin.augov-aem.page';
+export const AEM_API = 'https://api.augov-aem.live';
 
 export const ALLOWED_TOKEN = [
   DA_ADMIN,
