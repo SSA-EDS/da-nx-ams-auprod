@@ -93,36 +93,36 @@ describe('mdToDocDom', () => {
     expect(cr.querySelector('p').textContent).to.equal('world');
   });
 
-  it('Rewrites .hlx.page links to .aem.live', () => {
+  it('Rewrites .hlx.page links to .ent-aem.live', () => {
     const md = '[link](https://main--site--owner.hlx.page/foo)\n';
     const dom = mdToDocDom(md);
     const a = dom.querySelector('a');
-    expect(a.getAttribute('href')).to.equal('https://main--site--owner.aem.live/foo');
+    expect(a.getAttribute('href')).to.equal('https://main--site--owner.ent-aem.live/foo');
   });
 
-  it('Rewrites .hlx.live links to .aem.live', () => {
+  it('Rewrites .hlx.live links to .ent-aem.live', () => {
     const md = '[link](https://main--site--owner.hlx.live/foo)\n';
     const dom = mdToDocDom(md);
-    expect(dom.querySelector('a').getAttribute('href')).to.equal('https://main--site--owner.aem.live/foo');
+    expect(dom.querySelector('a').getAttribute('href')).to.equal('https://main--site--owner.ent-aem.live/foo');
   });
 
-  it('Rewrites .aem.page links to .aem.live', () => {
-    const md = '[link](https://main--site--owner.aem.page/foo)\n';
+  it('Rewrites .ent-aem.page links to .ent-aem.live', () => {
+    const md = '[link](https://main--site--owner.ent-aem.page/foo)\n';
     const dom = mdToDocDom(md);
-    expect(dom.querySelector('a').getAttribute('href')).to.equal('https://main--site--owner.aem.live/foo');
+    expect(dom.querySelector('a').getAttribute('href')).to.equal('https://main--site--owner.ent-aem.live/foo');
   });
 
   it('Removes #width hash from image src', () => {
-    const md = '![alt](https://example.aem.live/image.png#width=100)\n';
+    const md = '![alt](https://example.ent-aem.live/image.png#width=100)\n';
     const dom = mdToDocDom(md);
     const img = dom.querySelector('img');
-    expect(img.getAttribute('src')).to.equal('https://example.aem.live/image.png');
+    expect(img.getAttribute('src')).to.equal('https://example.ent-aem.live/image.png');
   });
 
   it('Leaves image src without #width untouched', () => {
-    const md = '![alt](https://example.aem.live/image.png)\n';
+    const md = '![alt](https://example.ent-aem.live/image.png)\n';
     const dom = mdToDocDom(md);
-    expect(dom.querySelector('img').getAttribute('src')).to.equal('https://example.aem.live/image.png');
+    expect(dom.querySelector('img').getAttribute('src')).to.equal('https://example.ent-aem.live/image.png');
   });
 
   describe('main.md fixture', () => {

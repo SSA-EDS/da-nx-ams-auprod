@@ -24,7 +24,7 @@ function transformSnapshotUrl(url, site, org) {
     const pathFragments = properUrl.pathname.split('/');
     if (pathFragments.length > 2) {
       const snapshotName = pathFragments[2];
-      const newHostName = `${snapshotName}--main--${site}--${org}.aem.reviews`;
+      const newHostName = `${snapshotName}--main--${site}--${org}.ent-aem.reviews`;
       return new URL(`${properUrl.protocol}//${newHostName}/${pathFragments.slice(3).join('/')}`);
     }
   }

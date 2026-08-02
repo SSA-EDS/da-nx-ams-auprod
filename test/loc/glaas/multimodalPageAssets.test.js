@@ -1,5 +1,6 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
+import { DA_ADMIN } from '../../../nx2/utils/utils.js';
 import { glaasSourcePreviewUrl } from '../../../nx/blocks/loc/connectors/glaas/api.js';
 import {
   buildMultimodalPageAssetEntry,
@@ -203,23 +204,23 @@ describe('GLaaS multimodal getPutUrlForFile', () => {
 });
 
 describe('GLaaS multimodal source preview URL', () => {
-  it('normalizes aem.page href for GLaaS (strip trailing /index)', () => {
+  it('normalizes ent-aem.page href for GLaaS (strip trailing /index)', () => {
     expect(glaasSourcePreviewUrl(
-      'https://main--site--org.aem.page/drafts/demo/page/index',
-    )).to.equal('https://main--site--org.aem.page/drafts/demo/page/');
+      'https://main--site--org.ent-aem.page/drafts/demo/page/index',
+    )).to.equal('https://main--site--org.ent-aem.page/drafts/demo/page/');
     expect(glaasSourcePreviewUrl(
-      'https://main--site--org.aem.page/drafts/demo/page.html',
-    )).to.equal('https://main--site--org.aem.page/drafts/demo/page.html');
+      'https://main--site--org.ent-aem.page/drafts/demo/page.html',
+    )).to.equal('https://main--site--org.ent-aem.page/drafts/demo/page.html');
     expect(glaasSourcePreviewUrl(undefined)).to.equal(undefined);
   });
 });
 
 describe('GLaaS multimodal image source URLs', () => {
-  it('maps content.da.live to DA Admin /source with the same path', () => {
+  it('maps content.ent-da.live to DA Admin /source with the same path', () => {
     expect(contentDaLiveToDaSourceUrl(
-      'https://content.da.live/adobecom/da-dc/acrobat/test/.acrobat-pro/rect.png',
+      'https://content.ent-da.live/adobecom/da-dc/acrobat/test/.acrobat-pro/rect.png',
     )).to.equal(
-      'https://admin.da.live/source/adobecom/da-dc/acrobat/test/.acrobat-pro/rect.png',
+      `${DA_ADMIN}/source/adobecom/da-dc/acrobat/test/.acrobat-pro/rect.png`,
     );
   });
 });
@@ -227,7 +228,7 @@ describe('GLaaS multimodal image source URLs', () => {
 describe('GLaaS multimodal pageAssets', () => {
   it('builds page asset entry with html glaas name and image metadata', () => {
     const html = `
-      <img src="https://content.da.live/adobecom/foo/rectangle%20810724.png">
+      <img src="https://content.ent-da.live/adobecom/foo/rectangle%20810724.png">
     `;
     const imageUrls = collectContentDaLiveImageUrls(html, { org: 'adobecom', site: 'foo' });
     const entry = buildMultimodalPageAssetEntry({
@@ -240,29 +241,29 @@ describe('GLaaS multimodal pageAssets', () => {
     expect(entry.images[0].glaasName).to.equal('/rectangle 810724.png');
   });
 
-  it('collects only images under https://content.da.live/{org}/{site}', () => {
+  it('collects only images under https://content.ent-da.live/{org}/{site}', () => {
     const html = `
-      <img src="https://content.da.live/adobecom/foo/same-site.png">
-      <img src="https://content.da.live/otherorg/foo/other-org.png">
-      <img src="https://content.da.live/adobecom/othersite/other-site.png">
+      <img src="https://content.ent-da.live/adobecom/foo/same-site.png">
+      <img src="https://content.ent-da.live/otherorg/foo/other-org.png">
+      <img src="https://content.ent-da.live/adobecom/othersite/other-site.png">
     `;
     expect(collectContentDaLiveImageUrls(html, { org: 'adobecom', site: 'foo' })).to.deep.equal([
-      'https://content.da.live/adobecom/foo/same-site.png',
+      'https://content.ent-da.live/adobecom/foo/same-site.png',
     ]);
   });
 
-  it('ignores relative ./media_ paths (DNT) that are not on content.da.live', () => {
+  it('ignores relative ./media_ paths (DNT) that are not on content.ent-da.live', () => {
     const html = `
       <img src="./media_13f28848e8da34fafe003ee7053bf2118fb26c78a.jpg">
-      <img src="https://main--dc--adobecom.aem.live/media_13f28848e8da34fafe003ee7053bf2118fb26c78a.jpg">
+      <img src="https://main--dc--adobecom.ent-aem.live/media_13f28848e8da34fafe003ee7053bf2118fb26c78a.jpg">
     `;
     expect(collectContentDaLiveImageUrls(html)).to.deep.equal([]);
   });
 
   it('collects comma-separated png and jpeg filenames from img[src] only', () => {
-    const commaPng = 'https://content.da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=full,%20content=feature%20image.png';
-    const commaJpg = 'https://content.da.live/adobecom/da-dc/drafts/demo/.hero/breakpoint=small,%20width=full,%20content=hero%20photo.jpg';
-    const commaSvg = 'https://content.da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=full,%20content=blur%20bg.svg';
+    const commaPng = 'https://content.ent-da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=full,%20content=feature%20image.png';
+    const commaJpg = 'https://content.ent-da.live/adobecom/da-dc/drafts/demo/.hero/breakpoint=small,%20width=full,%20content=hero%20photo.jpg';
+    const commaSvg = 'https://content.ent-da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=full,%20content=blur%20bg.svg';
     const html = `
       <picture>
         <source srcset="${commaPng}">
@@ -284,22 +285,22 @@ describe('GLaaS multimodal pageAssets', () => {
 
   it('collects only png and jpeg images (GLaaS multimodal format support)', () => {
     const html = `
-      <img src="https://content.da.live/adobecom/foo/hero.png">
-      <img src="https://content.da.live/adobecom/foo/photo.jpg">
-      <img src="https://content.da.live/adobecom/foo/photo.jpeg">
-      <img src="https://content.da.live/adobecom/foo/blur.svg">
-      <img src="https://content.da.live/adobecom/foo/anim.gif">
-      <img src="https://content.da.live/adobecom/foo/modern.webp">
-      <img src="https://content.da.live/adobecom/foo/next.avif">
+      <img src="https://content.ent-da.live/adobecom/foo/hero.png">
+      <img src="https://content.ent-da.live/adobecom/foo/photo.jpg">
+      <img src="https://content.ent-da.live/adobecom/foo/photo.jpeg">
+      <img src="https://content.ent-da.live/adobecom/foo/blur.svg">
+      <img src="https://content.ent-da.live/adobecom/foo/anim.gif">
+      <img src="https://content.ent-da.live/adobecom/foo/modern.webp">
+      <img src="https://content.ent-da.live/adobecom/foo/next.avif">
     `;
     expect(collectContentDaLiveImageUrls(html, { org: 'adobecom', site: 'foo' })).to.deep.equal([
-      'https://content.da.live/adobecom/foo/hero.png',
-      'https://content.da.live/adobecom/foo/photo.jpg',
-      'https://content.da.live/adobecom/foo/photo.jpeg',
+      'https://content.ent-da.live/adobecom/foo/hero.png',
+      'https://content.ent-da.live/adobecom/foo/photo.jpg',
+      'https://content.ent-da.live/adobecom/foo/photo.jpeg',
     ]);
   });
 
-  it('returns empty images when page has no content.da.live assets', () => {
+  it('returns empty images when page has no content.ent-da.live assets', () => {
     const entry = buildMultimodalPageAssetEntry({
       htmlAssetName: 'drafts/page.html',
       imageUrls: [],
@@ -315,7 +316,7 @@ describe('GLaaS multimodal TEXT asset metadata', () => {
       pagePath: '/drafts/demo/page.html',
       signedUrl: 'https://put.example/html',
       targetLocales: ['de', 'fr'],
-      pagePreviewUrl: 'https://main--site--org.aem.page/drafts/demo/page',
+      pagePreviewUrl: 'https://main--site--org.ent-aem.page/drafts/demo/page',
       translationMetadata: {
         de: { 'keywords|block_1_title': 'keyword de' },
       },
@@ -331,7 +332,7 @@ describe('GLaaS multimodal TEXT asset metadata', () => {
       parentAsset: '/drafts/demo/page.html',
       signedUrl: 'https://put.example/html',
       targetLocales: ['de', 'fr'],
-      sourcePreviewUrlPage: 'https://main--site--org.aem.page/drafts/demo/page',
+      sourcePreviewUrlPage: 'https://main--site--org.ent-aem.page/drafts/demo/page',
       langMetadata: {
         de: { 'keywords|block_1_title': 'keyword de' },
       },
@@ -448,7 +449,7 @@ describe('GLaaS multimodal translated page count', () => {
   const pageAssets = {
     '/page-a': {
       htmlGlaasName: '/drafts/page-a.html',
-      images: [{ glaasName: '/media/a.png', contentDaLiveUrl: 'https://content.da.live/media/a.png' }],
+      images: [{ glaasName: '/media/a.png', contentDaLiveUrl: 'https://content.ent-da.live/media/a.png' }],
     },
     '/page-b': {
       htmlGlaasName: '/drafts/page-b.html',

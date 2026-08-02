@@ -1,6 +1,6 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import { DA_ORIGIN } from '../../../nx/public/utils/constants.js';
+import { DA_ADMIN } from '../../../nx2/utils/utils.js';
 import {
   blobContentTypeForDaSource,
   buildTranslatedMediaPath,
@@ -12,9 +12,9 @@ import {
 } from '../../../nx/blocks/loc/connectors/glaas/multimodalApi.js';
 
 describe('GLaaS multimodal save', () => {
-  it('strips content.da.live org/site segments from image URL', () => {
+  it('strips content.ent-da.live org/site segments from image URL', () => {
     expect(siteRelativePathFromContentDaLiveUrl(
-      'https://content.da.live/adobecom/da-dc/acrobat/online/test/.acrobat-pro/report.png',
+      'https://content.ent-da.live/adobecom/da-dc/acrobat/online/test/.acrobat-pro/report.png',
     )).to.equal('/acrobat/online/test/.acrobat-pro/report.png');
   });
 
@@ -25,7 +25,7 @@ describe('GLaaS multimodal save', () => {
   describe('media bus POST path', () => {
     it('postImageToDaMedia hits /media/{org}/{site}/{lang}{site-relative path}', async () => {
       const fetchStub = sinon.stub(window, 'fetch').resolves(new Response(
-        JSON.stringify({ uri: 'https://main--da-dc--adobecom.aem.page/media_abc.avif' }),
+        JSON.stringify({ uri: 'https://main--da-dc--adobecom.ent-aem.page/media_abc.avif' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       ));
       const blob = new Blob(['x'], { type: 'image/png' });
@@ -43,11 +43,11 @@ describe('GLaaS multimodal save', () => {
         contentType: 'image/png',
       });
 
-      expect(result.url).to.equal('https://main--da-dc--adobecom.aem.page/media_abc.avif');
+      expect(result.url).to.equal('https://main--da-dc--adobecom.ent-aem.page/media_abc.avif');
       expect(fetchStub.calledOnce).to.be.true;
       const [url, opts] = fetchStub.firstCall.args;
-      expect(url).to.equal(`${DA_ORIGIN}/media/${org}/${site}${buildTranslatedMediaPath({ langCode, glaasName })}`);
-      expect(url).to.equal(`${DA_ORIGIN}/media/adobecom/da-dc/de/acrobat/shared/hero.png`);
+      expect(url).to.equal(`${DA_ADMIN}/media/${org}/${site}${buildTranslatedMediaPath({ langCode, glaasName })}`);
+      expect(url).to.equal(`${DA_ADMIN}/media/adobecom/da-dc/de/acrobat/shared/hero.png`);
       expect(url).not.to.include('/media/adobecom/da-dc/de/adobecom/da-dc/');
       expect(opts.method).to.equal('POST');
       expect(opts.body).to.be.instanceOf(FormData);
@@ -55,7 +55,7 @@ describe('GLaaS multimodal save', () => {
 
     it('postImageToDaMedia supports nested paths and locale codes with hyphens', async () => {
       const fetchStub = sinon.stub(window, 'fetch').resolves(new Response(
-        JSON.stringify({ url: 'https://main--da-dc--adobecom.aem.page/media_nested.avif' }),
+        JSON.stringify({ url: 'https://main--da-dc--adobecom.ent-aem.page/media_nested.avif' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       ));
       await postImageToDaMedia({
@@ -67,7 +67,7 @@ describe('GLaaS multimodal save', () => {
         contentType: 'image/png',
       });
       const [url] = fetchStub.firstCall.args;
-      expect(url).to.equal(`${DA_ORIGIN}/media/adobecom/da-dc/fr-CA/acrobat/online/test/report.png`);
+      expect(url).to.equal(`${DA_ADMIN}/media/adobecom/da-dc/fr-CA/acrobat/online/test/report.png`);
     });
 
     it('postImageToDaMedia skips images above observed upload limit without POST', async () => {
@@ -113,11 +113,11 @@ describe('GLaaS multimodal save', () => {
     const site = 'da-dc';
     const imageGlaasName = '/acrobat/shared/hero.png';
     const htmlAssetName = '/drafts/page.html';
-    const contentDaLiveUrl = `https://content.da.live/${org}/${site}/acrobat/shared/hero.png`;
+    const contentDaLiveUrl = `https://content.ent-da.live/${org}/${site}/acrobat/shared/hero.png`;
     const translatedHtml = `<img src="${contentDaLiveUrl}">`;
-    const deliveryUrl = 'https://main--da-dc--adobecom.aem.page/media_abc.avif';
+    const deliveryUrl = 'https://main--da-dc--adobecom.ent-aem.page/media_abc.avif';
 
-    const expectedMediaPost = `${DA_ORIGIN}/media/${org}/${site}/de/acrobat/shared/hero.png`;
+    const expectedMediaPost = `${DA_ADMIN}/media/${org}/${site}/de/acrobat/shared/hero.png`;
     const fetchStub = sinon.stub(window, 'fetch').callsFake((url) => {
       const href = String(url);
       if (href.includes('/api/l10n/v2.0/') && href.includes(encodeURI(imageGlaasName))) {
@@ -164,7 +164,7 @@ describe('GLaaS multimodal save', () => {
     });
 
     expect(fetchStub.calledWith(expectedMediaPost, sinon.match({ method: 'POST' }))).to.be.true;
-    expect(result.text).to.include('main--da-dc--adobecom.aem.page/media_abc.avif');
+    expect(result.text).to.include('main--da-dc--adobecom.ent-aem.page/media_abc.avif');
     expect(result.text).not.to.include(contentDaLiveUrl);
   });
 
@@ -173,7 +173,7 @@ describe('GLaaS multimodal save', () => {
     const site = 'da-dc';
     const imageGlaasName = '/acrobat/shared/hero-large.jpg';
     const htmlAssetName = '/drafts/page.html';
-    const contentDaLiveUrl = `https://content.da.live/${org}/${site}/acrobat/shared/hero-large.jpg`;
+    const contentDaLiveUrl = `https://content.ent-da.live/${org}/${site}/acrobat/shared/hero-large.jpg`;
     const translatedHtml = `<img src="${contentDaLiveUrl}">`;
     const oversized = new Blob([new Uint8Array(MEDIA_IMAGE_UPLOAD_MAX_BYTES + 1)], { type: 'image/jpeg' });
     const warnings = [];
@@ -233,12 +233,12 @@ describe('GLaaS multimodal save', () => {
   });
 
   it('rewrites img[src] and mirrors delivery URL onto picture source[srcset]', () => {
-    const deliveryUrl = 'https://main--da-dc--adobecom.aem.page/media_abc.avif';
+    const deliveryUrl = 'https://main--da-dc--adobecom.ent-aem.page/media_abc.avif';
     const html = `
       <picture>
-        <source srcset="https://content.da.live/adobecom/da-dc/acrobat/foo/rect%201.png 1x">
-        <source srcset="https://content.da.live/adobecom/da-dc/acrobat/foo/rect%201.png 1x" media="(min-width: 600px)">
-        <img src="https://content.da.live/adobecom/da-dc/acrobat/foo/rect%201.png">
+        <source srcset="https://content.ent-da.live/adobecom/da-dc/acrobat/foo/rect%201.png 1x">
+        <source srcset="https://content.ent-da.live/adobecom/da-dc/acrobat/foo/rect%201.png 1x" media="(min-width: 600px)">
+        <img src="https://content.ent-da.live/adobecom/da-dc/acrobat/foo/rect%201.png">
       </picture>
     `;
     const pathToNewUrl = new Map([
@@ -247,12 +247,12 @@ describe('GLaaS multimodal save', () => {
     const out = rewriteContentDaLiveImageUrls(html, pathToNewUrl);
     expect(out).to.include(`src="${deliveryUrl}"`);
     expect(out).to.include(`srcset="${deliveryUrl}"`);
-    expect(out).not.to.include('content.da.live/adobecom/da-dc/acrobat/foo/rect%201.png');
+    expect(out).not.to.include('content.ent-da.live/adobecom/da-dc/acrobat/foo/rect%201.png');
   });
 
   it('rewrites comma-containing filenames without srcset comma splitting', () => {
-    const contentDaLiveUrl = 'https://content.da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=half%20or%20third,%20content=feature%20image.png';
-    const deliveryUrl = 'https://main--da-dc--adobecom.aem.page/media_hero.avif';
+    const contentDaLiveUrl = 'https://content.ent-da.live/adobecom/da-dc/drafts/demo/.hero/variant=default,%20width=half%20or%20third,%20content=feature%20image.png';
+    const deliveryUrl = 'https://main--da-dc--adobecom.ent-aem.page/media_hero.avif';
     const html = `
       <picture>
         <source srcset="${contentDaLiveUrl}">
@@ -266,7 +266,7 @@ describe('GLaaS multimodal save', () => {
     const out = rewriteContentDaLiveImageUrls(html, pathToNewUrl);
     expect(out).to.include(`src="${deliveryUrl}"`);
     expect((out.match(/srcset="/g) ?? []).length).to.equal(2);
-    expect(out).not.to.include('content.da.live');
+    expect(out).not.to.include('content.ent-da.live');
     expect(out).not.to.include('variant=default,');
   });
 });

@@ -1,10 +1,10 @@
 # `nx2/utils/api.js` — DA / AEM Admin API
 
-A unified client for talking to **DA admin** (`admin.da.live`) and the **AEM admin API** in either its legacy form (`admin.hlx.page`, "helix5") or its new form (`api.aem.live`, "helix6"). Every method auto-routes by the per-site **hlx6** upgrade flag — once a site has been upgraded, calls flow to the new origin; otherwise they fall back to the legacy origin.
+A unified client for talking to **DA admin** (`admin.ent-da.live`) and the **AEM admin API** in either its legacy form (`admin.ent-aem.page`, "helix5") or its new form (`api.ent-aem.live`, "helix6"). Every method auto-routes by the per-site **hlx6** upgrade flag — once a site has been upgraded, calls flow to the new origin; otherwise they fall back to the legacy origin.
 
 The module ships its low-level primitive (`daFetch`), an upgrade detector (`isHlx6`), helpers (`fromPath`, `signout`, `asJson`, `asText`), and **eight namespaced surfaces**: `source`, `versions`, `config`, `org`, `status`, `aem`, `snapshot`, `jobs`. Type definitions live in `[api.d.ts](./api.d.ts)` — VSCode picks them up automatically and surfaces overloads, field-level docs, and inline shapes.
 
-> **Routing model.** Some endpoints are owned by DA itself (`source`, `list`, `config`, `versions`) and DA proxies them to AEM when the site is upgraded. Others are AEM-only (`status`, `preview`, `live`, `snapshots`, `jobs`) and live on either `admin.hlx.page` (legacy) or `api.aem.live` (hlx6). The module hides this distinction; callers always pass `{ org, site, path }` and get a `Response` back.
+> **Routing model.** Some endpoints are owned by DA itself (`source`, `list`, `config`, `versions`) and DA proxies them to AEM when the site is upgraded. Others are AEM-only (`status`, `preview`, `live`, `snapshots`, `jobs`) and live on either `admin.ent-aem.page` (legacy) or `api.ent-aem.live` (hlx6). The module hides this distinction; callers always pass `{ org, site, path }` and get a `Response` back.
 
 ---
 
@@ -115,14 +115,15 @@ Document CRUD on `source` paths. Bridges DA's `/source` and AEM's `/sites/{site}
 | Method         | Signature                                                                                     | Notes                                                                                                                                                                                          |
 | -------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `get`          | `({ org, site, path })` or `(fullPath)`                                                       | GET — raw `Response`.                                                                                                                                                                          |
-| `list`         | `({ org, site, path?, continuationToken? })` or `(fullPath, { continuationToken? })`            | List a folder. Returns `{ ok, items, continuationToken, permissions }` (normalized — items match legacy DA shape regardless of server). Pass `{ org }` (no site) to list at org level — DA-legacy only. Bulk lists paginate — pass `continuationToken` back into the next call. |
-| `save`         | `({ org, site, path, body })` or `(fullPath, { body })`                                       | Upload — raw `Response`. POST for both branches. **DA-legacy**: wraps `body` as a Blob in `multipart/form-data` field `data`, with the Blob's type set from the path extension via `TYPE_MAP`. **hlx6**: sends `body` raw (string, Blob, or File); `Content-Type` is set from the path extension via `TYPE_MAP` and overrides any auto-applied Blob type. Extensions not in `TYPE_MAP` send no `Content-Type`. |
+| `list`         | `({ org, site, path?, continuationToken? })` or `(fullPath, { continuationToken? })`            | List a folder. Returns `{ ok, items, continuationToken, permissions }` (normalized — items match legacy DA shape regardless of server). Pass `{ org }` (no site) to list at org level — merges DA-legacy folders (`${DA_ADMIN}/list/{org}`) with hlx6 source-bus sites (`org.listSites`), deduped by name. Only DA paginates; `org.listSites` is only queried on the first page (no `continuationToken`). Bulk lists paginate — pass `continuationToken` back into the next call. |
+| `save`         | `({ org, site, path, body })` or `(fullPath, { body })`                                       | Upload — raw `Response`. POST for both branches. **DA-legacy**: wraps `body` as a Blob in `multipart/form-data` field `data`, with the Blob's type set from the path extension via `TYPE_MAP`. **hlx6**: sends `body` raw (string, Blob, or File); `Content-Type` is set from the path extension via `TYPE_MAP` and overrides any auto-applied Blob type. Extensions not in `TYPE_MAP` send no `Content-Type`. On success, `resp.json()` is normalized to DA's `{ source: { contentUrl } }` shape (`contentUrl` = the written source URL), since the hlx6 endpoint returns an empty body; non-ok responses pass through unchanged. |
 | `getMetadata`  | `({ org, site, path })` or `(fullPath)`                                                       | HEAD — raw `Response`. Value is in `resp.headers` (`doc-id`, `last-modified`, etc.).                                                                                                          |
 | `delete`       | `({ org, site, path })` or `(fullPath)`                                                       | DELETE — raw `Response` (typically 204). For recursive folder deletion use `deleteFolder`.                                                                                                    |
 | `copy`         | `({ org, site, path, destination, collision? })` or `(fullPath, { destination, collision? })` | Raw `Response`. `path` = source, `destination` = target. **hlx6**: PUT to dest URL with `?source=…&collision=…` query. **DA**: POST `/copy/{org}/{site}{path}` with `multipart/form-data` field `destination`. |
 | `move`         | `({ org, site, path, destination, collision? })` or `(fullPath, { destination, collision? })` | Same shape as `copy`. Raw `Response`. Adds `?move=true` (hlx6) or POSTs to `/move/{org}/{site}{path}` (DA).                                                                                  |
 | `createFolder` | `({ org, site, path })` or `(fullPath)`                                                       | POST on `${path}/` (trailing slash).                                                                                                                                                           |
 | `deleteFolder` | `({ org, site, path })` or `(fullPath)`                                                       | DELETE on `${path}/`.                                                                                                                                                                          |
+| `copyFolder`   | `({ org, site, path, destination, collision? })` or `(fullPath, { destination, collision? })` | Recursive folder copy. Same shape as `copy`. **hlx6**: `path`/`destination` are normalized to a trailing slash first, then PUT to dest URL with `?source=…/&collision=…` query. **DA**: POST `/copy/{org}/{site}{path}` with `multipart/form-data` field `destination` — no trailing-slash normalization (legacy DA doesn't need it). |
 
 
 ### URL shapes
@@ -131,9 +132,10 @@ Document CRUD on `source` paths. Bridges DA's `/source` and AEM's `/sites/{site}
 | Method                                       | hlx6                                             | legacy DA                                                                                |
 | -------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | get / list / save / getMetadata / delete     | `${AEM_API}/{org}/sites/{site}/source{path}`     | `${DA_ADMIN}/source/{org}/{site}{path}`                                                  |
-| list (org-only)                  | n/a                                              | `${DA_ADMIN}/list/{org}`                                                                 |
+| list (org-only)                  | `${AEM_API}/{org}/source/` (via `org.listSites`) | `${DA_ADMIN}/list/{org}` — results from both are merged, deduped by name                |
 | list (with site, legacy)         | n/a                                              | `${DA_ADMIN}/list/{org}/{site}{path}`                                                    |
 | copy / move                      | PUT to dest URL with `?source=&collision=&move=` | POST to `${DA_ADMIN}/copy/{org}/{site}{path}` (or `/move`) with `destination` form field |
+| copyFolder                       | PUT to dest URL (trailing slash normalized) with `?source=&collision=` | POST to `${DA_ADMIN}/copy/{org}/{site}{path}` with `destination` form field (no trailing-slash normalization) |
 
 
 ### Examples
@@ -165,6 +167,16 @@ const copyResp = await source.copy({
   site: 'aem-boilerplate',
   path: '/old.html',          // source
   destination: '/new.html',   // dest
+  collision: 'overwrite',
+});
+
+// Copy a folder recursively — path/destination don't need a trailing slash.
+// On hlx6 they're normalized to one before dispatch; legacy DA uses them as-is.
+const copyFolderResp = await source.copyFolder({
+  org: 'adobe',
+  site: 'aem-boilerplate',
+  path: '/old-folder',        // source folder
+  destination: '/new-folder', // dest folder
   collision: 'overwrite',
 });
 ```
@@ -238,12 +250,12 @@ if (agg.status === 501) {
 
 ## Namespace: `org`
 
-Organization-level operations. hlx6-only (no DA-legacy fallback exists at org level).
+Organization-level operations. hlx6-only (no DA-legacy fallback exists at org level). Used internally by `source.list({ org })` to merge in hlx6 sites alongside DA-legacy folders — see [Namespace: `source`](#namespace-source).
 
 
 | Method      | Signature   | Notes                                                            |
 | ----------- | ----------- | ---------------------------------------------------------------- |
-| `listSites` | `({ org })` | GETs `${AEM_API}/{org}/sites`. Returns 404 on non-migrated orgs. |
+| `listSites` | `({ org })` | GETs `${AEM_API}/{org}/source/`. Returns 404 on non-migrated orgs. |
 
 
 ---
@@ -446,7 +458,7 @@ The low-level fetch primitive. Most callers shouldn't use it directly — namesp
 
 ```js
 const resp = await daFetch({
-  url: 'https://admin.da.live/some-endpoint',
+  url: 'https://admin.ent-da.live/some-endpoint',
   opts: { method: 'POST', body: formData },
 });
 ```
@@ -519,9 +531,9 @@ Imported from `./utils.js`:
 
 | Constant        | Value                               | Used for              |
 | --------------- | ----------------------------------- | --------------------- |
-| `DA_ADMIN`      | `https://admin.da.live` (env-aware) | DA admin origin       |
-| `HLX_ADMIN`     | `https://admin.hlx.page`            | Legacy AEM admin      |
-| `AEM_API`       | `https://api.aem.live`              | New AEM admin (hlx6)  |
+| `DA_ADMIN`      | `https://admin.ent-da.live` (env-aware) | DA admin origin       |
+| `HLX_ADMIN`     | `https://admin.ent-aem.page`            | Legacy AEM admin      |
+| `AEM_API`       | `https://api.ent-aem.live`              | New AEM admin (hlx6)  |
 | `ALLOWED_TOKEN` | array of origins                    | Auth header allowlist |
 
 
@@ -558,7 +570,7 @@ window.fetch = async (url, opts = {}) => {
 };
 
 await source.get({ org: 'foo', site: 'bar', path: '/x.html' });
-expect(lastCall().url).to.equal('https://admin.da.live/source/foo/bar/x.html');
+expect(lastCall().url).to.equal('https://admin.ent-da.live/source/foo/bar/x.html');
 ```
 
 The IMS dependency is mocked via the importmap in `web-test-runner.config.mjs` (`/nx2/utils/ims.js` → `/nx2/test/mocks/ims.js`).

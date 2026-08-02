@@ -35,9 +35,9 @@ export const MediaType = Object.freeze({
   LINK: 'link',
 });
 
-const AEM_PAGE = '.aem.page';
-const AEM_LIVE = '.aem.live';
-const PREVIEW_DA_LIVE = '.preview.da.live';
+const AEM_PAGE = '.ent-aem.page';
+const AEM_LIVE = '.ent-aem.live';
+const PREVIEW_DA_LIVE = '.preview.ent-da.live';
 
 export const Domains = Object.freeze({
   AEM_PAGE,
@@ -74,7 +74,7 @@ export const Storage = Object.freeze({
   DA_CONTENT: 'da-content',
 });
 
-export const DA_LIVE_EDIT_BASE = 'https://da.live/edit#/';
+export const DA_LIVE_EDIT_BASE = 'https://ent-da.live/edit#/';
 export const MEDIA_UNDERSCORE_PREFIX = 'media_';
 export const YOUTUBE_VIDEO_RE = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)([^&\n?#/]+)|youtu\.be\/([^&\n?#/]+))/;
 export const VIMEO_VIDEO_RE = /(?:player\.)?vimeo\.com\/(?:video\/)?(\d+)(?:$|[/?#])/;
@@ -118,8 +118,8 @@ export const ExternalMedia = Object.freeze({
 
 const DA_ADMIN_ENVS = {
   local: 'http://localhost:8787',
-  stage: 'https://stage-admin.da.live',
-  prod: 'https://admin.da.live',
+  stage: 'https://stage-admin.ent-da.live',
+  prod: 'https://admin.ent-da.live',
 };
 
 const DA_ETC_ENVS = {
@@ -150,7 +150,7 @@ export function resolveDaOrigin(location) {
 
   const env = (typeof localStorage !== 'undefined' && localStorage.getItem('da-admin')) || 'prod';
   const daOrigin = DA_ADMIN_ENVS[env] || DA_ADMIN_ENVS.prod;
-  return origin === 'https://da.page' ? daOrigin.replace('.live', '.page') : daOrigin;
+  return origin === 'https://ent-da.page' ? daOrigin.replace('.live', '.page') : daOrigin;
 }
 
 /**
@@ -179,14 +179,8 @@ export function resolveDaEtcOrigin(location) {
  * @returns {string}
  */
 export function resolveAemOrigin() {
-  return 'https://admin.hlx.page';
+  return 'https://admin.ent-aem.page';
 }
-
-// Worker-safe constants (no window/localStorage dependency)
-// Use static prod values - workers don't need environment switching
-export const DA_ADMIN = 'https://admin.da.live';
-export const HLX_ADMIN = 'https://admin.hlx.page';
-export const AEM_API = 'https://api.aem.live';
 
 export const DA_ETC_ORIGIN = typeof window !== 'undefined'
   ? resolveDaEtcOrigin(window.location)

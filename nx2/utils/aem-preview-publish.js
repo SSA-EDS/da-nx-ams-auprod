@@ -1,6 +1,6 @@
 /*
  * Copyright 2026 Adobe. All rights reserved.
- * AEM admin preview / live (publish) flows aligned with da.live helpers.
+ * AEM admin preview / live (publish) flows aligned with ent-da.live helpers.
  */
 import { HLX_ADMIN, DA_ADMIN } from './utils.js';
 import { daFetch } from './api.js';
